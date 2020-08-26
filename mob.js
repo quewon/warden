@@ -17,8 +17,7 @@ function drawMobs() {
 }
 
 function interactMob(m) {
-	interact_box.textContent = mob[m].interact;
-	info_box.textContent = 'NAME: '+m;
+	info.textContent = mob[m].interact;
 	encountered_mobs.push(m);
 }
 

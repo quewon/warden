@@ -7,7 +7,6 @@
 			--gui: #6c8078;
 			--bg: black;
 			--cargo: #755b2e;
-			--margin-size: 10px;
 			--border: 3px dashed var(--gui);
 
 			background-color: var(--bg);
@@ -18,85 +17,36 @@
 			width: 240px;
 			height: 240px;
 			background-color: transparent;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
 		}
+
 		#map {
 			background-color: var(--bg);
 			width: 240px;
 			height: 240px;
 			border: var(--border);
-			margin-left: var(--margin-size);
 			-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
 			-moz-box-sizing: border-box;    /* Firefox, other Gecko */
 			box-sizing: border-box;         /* Opera/IE 8+ */
 			visibility: hidden;
 		}
-		#container {
-			position: absolute;
-			width: calc(720px + 2*var(--margin-size));
-			top:50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-		}
-		#info_container {
-			background-color: var(--bg);
-			vertical-align: top;
-			text-align: left;
-			display: inline-block;
-			width: 240px;
-			height: 240px;
-			margin-right: var(--margin-size);
-			border: var(--border);
+
+		#info_bg {
+			margin-top: 10px;
+			text-align: center;
 			-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
 			-moz-box-sizing: border-box;    /* Firefox, other Gecko */
 			box-sizing: border-box;         /* Opera/IE 8+ */
-		}
-		#info_box {
-			height: 70%;
-			width: 234px;
-			padding: 10px;
-			-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-			-moz-box-sizing: border-box;    /* Firefox, other Gecko */
-			box-sizing: border-box;         /* Opera/IE 8+ */
-		}
-		#interact_box {
-			width: 234px;
-			padding: 10px;
-			border-top: var(--border);
-			-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-			-moz-box-sizing: border-box;    /* Firefox, other Gecko */
-			box-sizing: border-box;         /* Opera/IE 8+ */
-		}
-		#info_log {
-			width: calc(720px + 2*var(--margin-size));
-			height: 240px;
-			padding: 10px;
-			margin-top: var(--margin-size);
-			border-top: var(--border);
-			border-bottom: var(--border);
-			-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-			-moz-box-sizing: border-box;    /* Firefox, other Gecko */
-			box-sizing: border-box;         /* Opera/IE 8+ */
-			overflow: scroll;
-			visibility: hidden;
-		}
-		.row {
-			width: calc(720px + 2*var(--margin-size));
-			height: 240px;
 		}
 	</style>
 </head>
 
 <body>
-	<div id="container">
-		<div class="row" style="margin-bottom:var(--margin-size)"></div>
-		<div class="row">
-			<div id="info_container"><div id="info_box">[WASD] TO MOVE<br />[SPACE] TO INTERACT & DRAG</div><div id="interact_box"></div>
-			</div><canvas width="480" height="480"></canvas><canvas id="map" width="480" height="480"></canvas>
-		</div>
-		<div class="row">
-			<div id="info_log"></div>
-		</div>
-	</div>
+	<canvas width="480" height="480"></canvas><canvas id="map" width="480" height="480"></canvas>
+	<div id="info_bg"><span id="info">[WASD] TO MOVE<br />[SPACE] TO INTERACT & DRAG</span></div>
 </body>
 
 <script>
@@ -105,9 +55,7 @@
 	var width = canvas.width; height = canvas.height;
 	var c = canvas.getContext('2d');
 	var mapc = document.getElementById("map").getContext('2d');
-	var info_box = document.getElementById("info_box");
-	var interact_box = document.getElementById("interact_box");
-	var info_log = document.getElementById("info_log");
+	var info = document.getElementById("info");
 
 	var cellsize = Math.round(width/8);
 
