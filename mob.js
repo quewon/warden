@@ -1,9 +1,36 @@
 var mob = {};
 var encountered_mobs = [];
+var stb = [];
+stb[0] = 'transparent';
+stb[1] = style.getPropertyValue('--primary');
+stb[2] = style.getPropertyValue('--secondary');
+stb[3] = style.getPropertyValue('--tertiary');
+var mob_design = {
+	player: [
+			[1, 1, 1, 1, 1, 1, 1, 1],
+			[1, 0, 0, 0, 0, 0, 0, 1],
+			[1, 0, 0, 0, 0, 0, 0, 1],
+			[1, 0, 0, 0, 0, 0, 0, 1],
+			[1, 0, 0, 0, 0, 0, 0, 1],
+			[1, 0, 0, 0, 0, 0, 0, 1],
+			[1, 0, 0, 0, 0, 0, 0, 1],
+			[1, 1, 1, 1, 1, 1, 1, 1]
+	],
+	cargo: [
+			[2, 2, 2, 2, 2, 2, 2, 2],
+			[2, 2, 2, 2, 2, 2, 2, 2],
+			[2, 2, 2, 2, 2, 2, 2, 2],
+			[2, 2, 2, 2, 2, 2, 2, 2],
+			[2, 2, 2, 2, 2, 2, 2, 2],
+			[2, 2, 2, 2, 2, 2, 2, 2],
+			[2, 2, 2, 2, 2, 2, 2, 2],
+			[2, 2, 2, 2, 2, 2, 2, 2]
+	]
+}
 
 function drawMobs() {
 	let mobs = Object.getOwnPropertyNames(mob);
-	for (var i=0; i<mobs.length; i++) {
+	for (let i=0; i<mobs.length; i++) {
 		if (i!='player' && mob[mobs[i]].room!=mob.player.room) { continue }
 		drawMob(mobs[i]);
 	}
@@ -11,14 +38,26 @@ function drawMobs() {
 	function drawMob(m) {
 		let x=mob[m].x, y=mob[m].y;
 		let d = mob[m].design;
-		c.fillStyle = mob[m].color;
-		c.fillRect(x,y,cellsize,cellsize)
+
+		if (typeof d=='string') {
+			c.fillStyle = d;
+			c.fillRect(x,y,cellsize,cellsize)
+		} else if (typeof d=='object') {
+			for (let i=0; i<8; i++) {
+				for (let ii=0; ii<8; ii++) {
+					c.fillStyle = stb[d[i][ii]];
+					c.fillRect(x,y,pixelsize,pixelsize);
+					x += pixelsize;
+				}
+				x=mob[m].x;
+				y+=pixelsize;
+			}
+		}
 	}
 }
 
 function interactMob(m) {
-	info.textContent = mob[m].interact;
-	encountered_mobs.push(m);
+	//TODO
 }
 
 function mobGen() {
@@ -103,7 +142,7 @@ function surroundingMobs(m) {
 mob.player = {};
 mob.player.x = cellsize*(3+Math.round(Math.random()));
 mob.player.y = cellsize*(3+Math.round(Math.random()));
-mob.player.color = '#8cdbbc';
+mob.player.design = mob_design.player;
 mob.player.force = 0;
 
 var move_tags = [
@@ -171,7 +210,7 @@ function move(dir) {
 function spawnMob(m, f) {
 	mob[m] = {};
 	mob[m].room = mob.player.room;
-	mob[m].color = style.getPropertyValue('--'+m);
+	mob[m].design = mob_design[m];
 	mob[m].force = f;
 	mob[m].interact = "";
 

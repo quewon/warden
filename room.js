@@ -1,5 +1,5 @@
 var sta = [];
-sta[0] = null;
+sta[0] = 'transparent';
 sta[1] = style.getPropertyValue('--gui');
 var r = [];
 var room_base = [
@@ -92,17 +92,19 @@ var room_tags = {
 	B: 'T',
 	R: 'L'
 }
-var map = {
-	dock: { x:0, y:0, room_shape: '' },
-	lobby: { x:null, y:null, room_shape: '' },
-	cabins: { x:null, y:null, room_shape: '' },
-	ctrl: { x:null, y:null, room_shape: '' },
-	engine: { x:null, y:null, room_shape: '' },
-	cargo: { x:null, y:null, room_shape: '' }
-};
+var map = {};
 
 function mapGen() {
 	//GENERATE ACTUAL MAP
+	map = {
+		dock: { x:0, y:0, room_shape: '' },
+		lobby: { x:null, y:null, room_shape: '' },
+		cabins: { x:null, y:null, room_shape: '' },
+		ctrl: { x:null, y:null, room_shape: '' },
+		engine: { x:null, y:null, room_shape: '' },
+		cargo: { x:null, y:null, room_shape: '' }
+	};
+
 	//get orientation of dock
 	let dock = Math.floor(Math.random()*4);
 	let dockpos = Math.floor(Math.random()*4);
@@ -234,7 +236,6 @@ function findEmptyAdjCells(xc, yc) {
 function drawMap() {
 	mapc.clearRect(0, 0, width, height);
 
-	let pixelsize = cellsize/8;
 	let room_names = Object.getOwnPropertyNames(map);
 	let mapr;
 	for (var v=0; v<room_names.length; v++) {

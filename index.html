@@ -6,7 +6,9 @@
 		:root {
 			--gui: #6c8078;
 			--bg: black;
-			--cargo: #755b2e;
+			--primary: #4efc03;
+			--secondary: #e2fc5d;
+			--tertiary: #03fc5e;
 			--border: 3px dashed var(--gui);
 
 			background-color: var(--bg);
@@ -34,7 +36,7 @@
 			visibility: hidden;
 		}
 
-		#info_bg {
+		#info {
 			margin-top: 10px;
 			text-align: center;
 			-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
@@ -45,8 +47,8 @@
 </head>
 
 <body>
-	<canvas width="480" height="480"></canvas><canvas id="map" width="480" height="480"></canvas>
-	<div id="info_bg"><span id="info">[WASD] TO MOVE<br />[SPACE] TO INTERACT & DRAG</span></div>
+	<canvas width="960" height="960"></canvas><canvas id="map" width="480" height="480"></canvas>
+	<div id="info">[WASD] TO MOVE<br />[SPACE] TO INTERACT & DRAG</div>
 </body>
 
 <script>
@@ -55,9 +57,9 @@
 	var width = canvas.width; height = canvas.height;
 	var c = canvas.getContext('2d');
 	var mapc = document.getElementById("map").getContext('2d');
-	var info = document.getElementById("info");
 
 	var cellsize = Math.round(width/8);
+	var pixelsize = cellsize/8;
 
 	function animate() {
 		requestAnimationFrame(animate);
@@ -102,8 +104,8 @@
 		}
 	}
 </script>
-<script src="mob.js"></script>
 <script src="room.js"></script>
+<script src="mob.js"></script>
 <script>
 	mapGen();
 
