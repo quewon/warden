@@ -1,6 +1,6 @@
-var sta = [];
-sta[0] = 'transparent';
-sta[1] = style.getPropertyValue('--gui');
+var room_color = [];
+room_color[0] = 'transparent';
+room_color[1] = style.getPropertyValue('--tertiary');
 var r = [];
 var room_base = [
 	[1, 1, 1, 1, 1, 1, 1, 1],
@@ -17,7 +17,7 @@ var rooms = [];
 function drawRoom() {
 	let r_shape = deepCopyFunction(room_base); //what the hell .. .
 
-	r = map[mob.player.room].room_shape; //-> e.g. 'T'
+	r = map[int.player.room].room_shape; //-> e.g. 'T'
 	r = r.split("");
 	r = [...new Set(r)];
 
@@ -45,8 +45,8 @@ function drawRoom() {
 		for (let ii=0; ii<8; ii++) {
 			let el=r[i][ii];
 
-			if (sta[el]) {
-				c.fillStyle = sta[el];
+			if (room_color[el]) {
+				c.fillStyle = room_color[el];
 				c.fillRect(x,y,cellsize,cellsize);
 			}
 			x += cellsize;
@@ -54,28 +54,6 @@ function drawRoom() {
 		x=0;
 		y+=cellsize;
 	}
-}
-
-function changeRoom(m) {
-	let rx = map[mob[m].room].x;
-	let ry = map[mob[m].room].y;
-	let room_names = Object.getOwnPropertyNames(map);
-	let newx = mob[m].x, newy = mob[m].y;
-
-	if (mob[m].y==0) { ry--; newy = cellsize*8 }
-	else if (mob[m].x==0) { rx--; newx = cellsize*8 }
-	else if (mob[m].y==cellsize*7) { ry++; newy = cellsize*-1 }
-	else if (mob[m].x==cellsize*7) { rx++; newx = cellsize*-1 }
-
-	for (let i=0; i<Object.keys(map).length; i++) {
-		if (map[room_names[i]].x == rx && map[room_names[i]].y == ry) {
-			mob[m].room = room_names[i];
-		}
-	}
-
-	//place player in entrance of next room
-	mob[m].x = newx;
-	mob[m].y = newy;
 }
 
 //MAP GEN
@@ -179,7 +157,7 @@ function mapGen() {
 		map.lobby.room_shape = map.lobby.room_shape.replace(room_tags[fill],'');
 	}
 
-	mob.player.room = 'dock';
+	int.player.room = 'dock';
 
 	function placeCargo(room) {
 		let empty_cell = findEmptyAdjCells(map[room].x, map[room].y);
@@ -203,8 +181,10 @@ function mapGen() {
 		}
 	}
 
-	//GENERATE MOBS
-	mobGen();
+	//FILL ROOMS WITH room_colorTIC INTS
+
+	//GENERATE INTS
+	intGen();
 }
 
 function findEmptyAdjCells(xc, yc) {
@@ -234,8 +214,6 @@ function findEmptyAdjCells(xc, yc) {
 }
 
 function drawMap() {
-	mapc.clearRect(0, 0, width, height);
-
 	let room_names = Object.getOwnPropertyNames(map);
 	let mapr;
 	for (var v=0; v<room_names.length; v++) {
@@ -270,9 +248,9 @@ function drawMap() {
 			for (let ii=0; ii<8; ii++) {
 				let el=mapr[i][ii];
 
-				if (sta[el]) {
-					mapc.fillStyle = sta[el];
-					mapc.fillRect(x,y,pixelsize,pixelsize);
+				if (room_color[el]) {
+					map_c.fillStyle = room_color[el];
+					map_c.fillRect(x,y,pixelsize,pixelsize);
 				}
 				x += pixelsize;
 			}

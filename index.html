@@ -4,31 +4,32 @@
 	<title>warden</title>
 	<style>
 		:root {
-			--gui: #6c8078;
-			--bg: black;
+			/*
+			primary: player
+			secondary: cargo
+			tertiary: gui
+			*/
 			--primary: #4efc03;
 			--secondary: #e2fc5d;
-			--tertiary: #03fc5e;
-			--border: 3px dashed var(--gui);
+			--tertiary: #6c8078;
 
-			background-color: var(--bg);
-			color: white;
+			--bg: white;
+			--border: 3px dashed var(--gui);
+			--size: 240px;
+
 			font-family: monospace;
 		}
 		canvas {
-			width: 240px;
-			height: 240px;
-			background-color: transparent;
 			position: absolute;
 			top: 50%;
 			left: 50%;
 			transform: translate(-50%, -50%);
+			width: var(--size);
+			height: var(--size);
 		}
-
 		#map {
-			background-color: var(--bg);
-			width: 240px;
-			height: 240px;
+			width: var(--size);
+			height: var(--size);
 			border: var(--border);
 			-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
 			-moz-box-sizing: border-box;    /* Firefox, other Gecko */
@@ -36,7 +37,7 @@
 			visibility: hidden;
 		}
 
-		#info {
+		div {
 			margin-top: 10px;
 			text-align: center;
 			-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
@@ -47,71 +48,68 @@
 </head>
 
 <body>
-	<canvas width="960" height="960"></canvas><canvas id="map" width="480" height="480"></canvas>
-	<div id="info">[WASD] TO MOVE<br />[SPACE] TO INTERACT & DRAG</div>
+	<div>[WASD] TO MOVE<br />[SPACE] TO INTERACT & DRAG</div>
+	<canvas id="main_canvas" width="960" height="960"></canvas><canvas id="map" width="960" height="960"></canvas>
 </body>
 
 <script>
 	var style = getComputedStyle(document.body);
-	var canvas = document.querySelector("canvas");
-	var width = canvas.width; height = canvas.height;
+	var canvas = document.getElementById("main_canvas");
 	var c = canvas.getContext('2d');
-	var mapc = document.getElementById("map").getContext('2d');
+	var width = canvas.width, height = canvas.height;
+
+	var map_canvas = document.getElementById("map");
+	var map_c = map_canvas.getContext('2d');
 
 	var cellsize = Math.round(width/8);
 	var pixelsize = cellsize/8;
 
+	//animation loop
 	function animate() {
 		requestAnimationFrame(animate);
 		c.clearRect(0, 0, width, height);
 
-		drawRoom(mob.player.room);
-		drawMobs();
+		drawRoom(int.player.room);
+		drawInts();
 
-		//UI
-		mapc.clearRect(0, 0, width, height);
+		map_c.clearRect(0, 0, width, height);
 		drawMap();
 	}
 
-	var keyfired = false;
-	var key_interacting = false;
-	var key_dragging = false;
-	//TODO: add speed cap to player
-	function key(event) {
+	var interacting = false;
+	var dragging = false;
+
+	function keydown(event) {
 		event = event || window.event;
 		let key = event.key || event.which || event.keyCode;
 
-		if (key=='w') { move(0) }
-		else if (key=='a') { move(1) }
-		else if (key=='s') { move(2) }
-		else if (key=='d') { move(3) }
+		if (key=='w') { move('player', 0) }
+		else if (key=='a') { move('player', 1) }
+		else if (key=='s') { move('player', 2) }
+		else if (key=='d') { move('player', 3) }
 
-		if (key==' ') {
-			key_interacting = true;
-		}
+		if (key==' ') { interacting = true }
 	}
 
 	function keyup(event) {
 		event = event || window.event;
 		let key = event.key || event.which || event.keyCode;
 
-		if (key==' ') { //spacebar; interact
-			let imobs = shuffle(surroundingMobs('player'));
-			if (imobs.length>0 && !key_dragging) { interactMob(imobs[0]); }
-
-			key_interacting = false;
-			key_dragging = false;
+		if (key==' ') {
+			let subject = surrounding('player')[0];
+			if (subject && !dragging) { interact(subject); }
+			interacting = false;
+			dragging = false;
 		}
 	}
 </script>
 <script src="room.js"></script>
-<script src="mob.js"></script>
+<script src="int.js"></script>
 <script>
-	mapGen();
-
-	window.onkeydown = key;
+	window.onkeydown = keydown;
 	window.onkeyup = keyup;
 
+	mapGen();
 	animate();
 </script>
 
