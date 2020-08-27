@@ -1,6 +1,6 @@
 var room_color = [];
 room_color[0] = 'transparent';
-room_color[1] = style.getPropertyValue('--tertiary');
+room_color[1] = style.getPropertyValue('--primary');
 var r = [];
 var room_base = [
 	[1, 1, 1, 1, 1, 1, 1, 1],

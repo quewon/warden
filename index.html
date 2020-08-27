@@ -5,19 +5,45 @@
 	<style>
 		:root {
 			/*
-			primary: player
-			secondary: cargo
-			tertiary: gui
+			primary: player + things player cannot affect
+			secondary: pull/draggable
+			bg: background + detailwork
 			*/
-			--primary: #4efc03;
-			--secondary: #e2fc5d;
-			--tertiary: #6c8078;
 
-			--bg: white;
+			/* FRESH SODA (DARK)
+			--bg: #056676;
+			--primary: #e8ded2;
+			--secondary: #5eaaa8;
+			*/
+
+			/* BABY BOY (LIGHT)
+			--bg: #f6f5f5;
+			--primary: #145374;
+			--secondary: #ee6f57;
+			*/
+
+			/* MINIONS AND PLUMS (DARK)
+			--bg: #3c2946;
+			--primary: #ffd571;
+			--secondary: #56556e;
+			*/
+
+			/* MILK & TEA (LIGHT)
+			--bg: #f5f1da;
+			--primary: #96bb7c;
+			--secondary: #eebb4d;
+			*/
+
+			--bg: #056676;
+			--primary: #e8ded2;
+			--secondary: #5eaaa8;
+
 			--border: 3px dashed var(--gui);
 			--size: 240px;
 
 			font-family: monospace;
+			background-color: var(--bg);
+			color: var(--primary);
 		}
 		canvas {
 			position: absolute;

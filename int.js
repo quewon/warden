@@ -3,7 +3,6 @@ var int_color = [];
 int_color[0] = 'transparent';
 int_color[1] = style.getPropertyValue('--primary');
 int_color[2] = style.getPropertyValue('--secondary');
-int_color[3] = style.getPropertyValue('--tertiary');
 var int_design = {
 	player: [
 			[1, 1, 1, 1, 1, 1, 1, 1],
