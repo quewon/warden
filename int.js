@@ -155,6 +155,7 @@ function move(subject, dir) {
 	//get surrounding objects before moving
 	let s = opposing(subject, dir);
 
+	//subject moves
 	if (!canMove(subject, dir)) { return }
 	else {
 		let c = colliding(subject, dir);
@@ -187,7 +188,8 @@ function move(subject, dir) {
 		}
 	}
 
-	if (s && interacting) {
+	//only player can drag
+	if (subject=='player' && s && interacting) {
 		move(s, dir);
 		dragging = true;
 	}
@@ -303,12 +305,19 @@ function findEmptySpace(room_name) {
 		[cellsize, cellsize*4], [cellsize*2, cellsize*4], [cellsize*3, cellsize*4], [cellsize*4, cellsize*4], [cellsize*5, cellsize*4], [cellsize*6, cellsize*4],
 		[cellsize, cellsize*5], [cellsize*2, cellsize*5], [cellsize*3, cellsize*5], [cellsize*4, cellsize*5], [cellsize*5, cellsize*5], [cellsize*6, cellsize*5],
 		[cellsize, cellsize*6], [cellsize*2, cellsize*6], [cellsize*3, cellsize*6], [cellsize*4, cellsize*6], [cellsize*5, cellsize*6], [cellsize*6, cellsize*6]
-	]
+	];
 
-	//go through objects in this room and remove from potential cells
-	//their coordinates
+	//remove coords of objects in room from potential areas
 	for (let i=0; i<ints_in_room.length; i++) {
-		const index = potential_cells.indexOf(ints_in_room[i]);
+		let index=0;
+		for (let ii=0; ii<potential_cells.length; ii++) {
+			if (potential_cells[ii][0]==ints_in_room[i][0] &&
+				potential_cells[ii][1]==ints_in_room[i][1]) {
+				index=ii;
+				break
+			}
+		}
+
 		potential_cells.splice(index,1)
 	}
 
