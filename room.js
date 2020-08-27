@@ -83,21 +83,27 @@ function mapGen() {
 		cargo: { x:null, y:null, room_shape: '' }
 	};
 
-	//get orientation of dock
-	let dock = Math.floor(Math.random()*4);
-	let dockpos = Math.floor(Math.random()*4);
-	
-	//posiion dock & lobby
-	if (dock==0) { //T
-		map.lobby.x = map.dock.x; map.lobby.y = map.dock.y-1;
-	} else if (dock==1) { //L
-		map.lobby.x = map.dock.x-1; map.lobby.y = map.dock.y;
-	} else if (dock==2) { //B
-		map.lobby.x = map.dock.x; map.lobby.y = map.dock.y+1;
-	} else if (dock==3) { //R
-		map.lobby.x = map.dock.x+1; map.lobby.y = map.dock.y;
+	//position dock & lobby
+	map.lobby.x = map.dock.x;
+	map.lobby.y = map.dock.y;
+	switch (Math.floor(Math.random()*4)) {
+		case 0: //T
+			map.lobby.y = map.dock.y-1;
+			map.dock.room_shape = room_shapes[0];
+			break;
+		case 1: //L
+			map.lobby.x = map.dock.x-1;
+			map.dock.room_shape = room_shapes[1];
+			break;
+		case 2: //B
+			map.lobby.y = map.dock.y+1;
+			map.dock.room_shape = room_shapes[2];
+			break;
+		case 3: //R
+			map.lobby.x = map.dock.x+1;
+			map.dock.room_shape = room_shapes[3];
+			break;
 	}
-	map.dock.room_shape = room_shapes[dock];
 
 	let lobby = Math.round(Math.random());
 	map.lobby.room_shape = 'TLBR';
@@ -173,12 +179,12 @@ function mapGen() {
 		map[room].room_shape += room_tags[map.cargo.room_shape];
 
 		//if cargo is next to both engine & ctrl, cargo may have another door
-		if (findEmptyAdjCells(map.cargo.x, map.cargo.y).length <= 2) {
-			let chance = Math.round(Math.random());
-			if (chance==1) {
-				//TODO
-			}
-		}
+		//if (findEmptyAdjCells(map.cargo.x, map.cargo.y).length <= 2) {
+		//	let chance = Math.round(Math.random());
+		//	if (chance==1) {
+		//		//TODO
+		//	}
+		//}
 	}
 
 	//FILL ROOMS WITH room_colorTIC INTS

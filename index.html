@@ -39,13 +39,14 @@
 			--secondary: #5eaaa8;
 
 			--border: 3px dashed var(--gui);
-			--size: 240px;
+			--size: 300px;
 
 			font-family: monospace;
+			font-size: 17px;
 			background-color: var(--bg);
 			color: var(--primary);
 		}
-		canvas {
+		.game_screen {
 			position: absolute;
 			top: 50%;
 			left: 50%;
@@ -54,13 +55,18 @@
 			height: var(--size);
 		}
 		#map {
-			width: var(--size);
-			height: var(--size);
 			border: var(--border);
 			-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
 			-moz-box-sizing: border-box;    /* Firefox, other Gecko */
 			box-sizing: border-box;         /* Opera/IE 8+ */
-			visibility: hidden;
+		}
+		#int_box {
+			background-color: var(--primary);
+			color: var(--secondary);
+			line-height: var(--size);
+			font-weight: 1000;
+			margin-top:0;
+			text-align: center;
 		}
 
 		div {
@@ -74,8 +80,9 @@
 </head>
 
 <body>
-	<div>[WASD] TO MOVE<br />[SPACE] TO INTERACT & DRAG</div>
-	<canvas id="main_canvas" width="960" height="960"></canvas><canvas id="map" width="960" height="960"></canvas>
+	<div>[WASD] TO MOVE<br />[SPACE] TO INTERACT & DRAG CARGO</div>
+	<canvas id="main_canvas" width="960" height="960" class="game_screen"></canvas><canvas id="map" width="960" height="960" class="game_screen" style="display:none"></canvas>
+	<div id="int_box" class="game_screen" style="display:none"></div>
 </body>
 
 <script>
@@ -86,6 +93,7 @@
 
 	var map_canvas = document.getElementById("map");
 	var map_c = map_canvas.getContext('2d');
+	var int_box = document.getElementById("int_box");
 
 	var cellsize = Math.round(width/8);
 	var pixelsize = cellsize/8;
@@ -98,16 +106,21 @@
 		drawRoom(int.player.room);
 		drawInts();
 
-		map_c.clearRect(0, 0, width, height);
-		drawMap();
+		if (map_canvas.style.display=="block") {
+			map_c.clearRect(0, 0, width, height);
+			drawMap();
+		}
 	}
 
 	var interacting = false;
 	var dragging = false;
+	var pause_locked = false;
 
 	function keydown(event) {
 		event = event || window.event;
 		let key = event.key || event.which || event.keyCode;
+
+		if (pause_locked) { return }
 
 		if (key=='w') { move('player', 0) }
 		else if (key=='a') { move('player', 1) }
@@ -122,8 +135,10 @@
 		let key = event.key || event.which || event.keyCode;
 
 		if (key==' ') {
-			let subject = surrounding('player')[0];
-			if (subject && !dragging) { interact(subject); }
+			let subject = surroundingInteractable('player')[0];
+			if (subject && !dragging) {
+				interact(subject);
+			}
 			interacting = false;
 			dragging = false;
 		}

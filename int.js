@@ -8,21 +8,41 @@ var int_design = {
 			[1, 1, 1, 1, 1, 1, 1, 1],
 			[1, 0, 0, 0, 0, 0, 0, 1],
 			[1, 0, 0, 0, 0, 0, 0, 1],
+			[1, 0, 1, 0, 0, 1, 0, 1],
 			[1, 0, 0, 0, 0, 0, 0, 1],
-			[1, 0, 0, 0, 0, 0, 0, 1],
-			[1, 0, 0, 0, 0, 0, 0, 1],
+			[1, 0, 1, 1, 1, 1, 0, 1],
 			[1, 0, 0, 0, 0, 0, 0, 1],
 			[1, 1, 1, 1, 1, 1, 1, 1]
 	],
 	cargo: [
 			[2, 2, 2, 2, 2, 2, 2, 2],
+			[2, 0, 0, 2, 2, 0, 0, 2],
+			[2, 0, 1, 2, 2, 1, 0, 2],
 			[2, 2, 2, 2, 2, 2, 2, 2],
 			[2, 2, 2, 2, 2, 2, 2, 2],
-			[2, 2, 2, 2, 2, 2, 2, 2],
-			[2, 2, 2, 2, 2, 2, 2, 2],
-			[2, 2, 2, 2, 2, 2, 2, 2],
-			[2, 2, 2, 2, 2, 2, 2, 2],
+			[2, 0, 1, 2, 2, 1, 0, 2],
+			[2, 0, 0, 2, 2, 0, 0, 2],
 			[2, 2, 2, 2, 2, 2, 2, 2]
+	],
+	empty_cargo: [
+			[2, 2, 2, 2, 2, 2, 2, 2],
+			[2, 0, 0, 2, 2, 0, 0, 2],
+			[2, 0, 0, 2, 2, 0, 0, 2],
+			[2, 2, 2, 2, 2, 2, 2, 2],
+			[2, 2, 2, 2, 2, 2, 2, 2],
+			[2, 0, 0, 2, 2, 0, 0, 2],
+			[2, 0, 0, 2, 2, 0, 0, 2],
+			[2, 2, 2, 2, 2, 2, 2, 2]
+	],
+	crew: [
+			[2, 2, 2, 2, 2, 2, 2, 2],
+			[2, 2, 2, 2, 2, 2, 2, 2],
+			[1, 0, 0, 0, 0, 0, 0, 1],
+			[1, 0, 1, 0, 0, 1, 0, 1],
+			[1, 0, 0, 0, 0, 0, 0, 1],
+			[1, 0, 1, 1, 1, 1, 0, 1],
+			[1, 0, 0, 0, 0, 0, 0, 1],
+			[1, 1, 1, 1, 1, 1, 1, 1]
 	]
 }
 
@@ -34,61 +54,101 @@ function drawInts() {
 	}
 
 	function drawInt(subject) {
-		let x=int[subject].x, y=int[subject].y;
-		let d = int[subject].design;
+		const { x, y, design } = int[subject];
+
+		let dx=x, dy=y;
+		let d = design;
 
 		for (let i=0; i<8; i++) {
 			for (let ii=0; ii<8; ii++) {
 				c.fillStyle = int_color[d[i][ii]];
-				c.fillRect(x,y,pixelsize,pixelsize);
-				x += pixelsize;
+				c.fillRect(dx,dy,pixelsize,pixelsize);
+				dx += pixelsize;
 			}
-			x=int[subject].x;
-			y+=pixelsize;
+			dx=x;
+			dy+=pixelsize;
 		}
 	}
 }
 
 function interact(subject) {
-	//TODO
-	console.log('interacting with '+subject)
+	if (int[subject].interaction==undefined) { return }
+
+	if (int_box.style.display=="none") {
+		//interact with subject
+		int_box.textContent = int[subject].interaction;
+		pause_locked = true;
+		int_box.style.display = "block";
+	} else {
+		pause_locked = false;
+		int_box.style.display = "none";
+	}
 }
 
 function intGen() {
-	let cargo_value = 2;
+	let cargo_value = 3;
+	let empty_cargo_value = 6;
+
 	for (let i=0; i<cargo_value; i++) {
 		const name = 'cargo'+i;
-		spawnInt(name, -1, int.player.room, 'cargo');
+		spawnInt(name, -1, int.player.room, 'cargo', ":)");
+	}
+	for (let i=0; i<empty_cargo_value; i++) {
+		const name = 'empty_cargo'+i;
+		spawnInt(name, -1, int.player.room, 'empty_cargo');
 	}
 }
 
 //COLLISION
 function colliding(subject, dir) { //get whatever it's colliding with
+	const { x, y, room } = int[subject];
+
 	//colliding with wall
-	let x = int[subject].x/cellsize;
-	let y = int[subject].y/cellsize;
+	let cx = x/cellsize;
+	let cy = y/cellsize;
 
-	if (dir==0) { y -= 1 }
-	else if (dir==1) { x -= 1 }
-	else if (dir==2) { y += 1 }
-	else if (dir==3) { x += 1 }
+	switch (dir) {
+		case 0:
+			cy--;
+			break;
+		case 1:
+			cx--;
+			break;
+		case 2:
+			cy++;
+			break;
+		case 3:
+			cx++;
+			break;
+	}
 
-	if (r[y]==undefined || r[x]==undefined) {
+	if (r[cy]==undefined || r[cx]==undefined) {
 		//check if there is an object colliding in the next room
 		let room_tax = {x:0,y:0};
-		if (dir==0) { room_tax.y = cellsize*7 }
-		else if (dir==1) { room_tax.x = cellsize*7 }
-		else if (dir==2) { room_tax.y = cellsize*-7}
-		else if (dir==3) { room_tax.x = cellsize*-7 }
 
-		x = int[subject].x+room_tax.x;
-		y = int[subject].y+room_tax.y;
+		switch (dir) {
+			case 0:
+				room_tax.y = cellsize*7;
+				break;
+			case 1:
+				room_tax.x = cellsize*7;
+				break;
+			case 2:
+				room_tax.y = cellsize*-7;
+				break;
+			case 3:
+				room_tax.x = cellsize*-7;
+				break;
+		}
+
+		cx = x+room_tax.x;
+		cy = y+room_tax.y;
 
 		let ints = Object.getOwnPropertyNames(int);
 		let potential_output = '';
 		for (let i=0; i<ints.length; i++) {
 			if (int[ints[i]].room==nextRoom(subject) &&
-				int[ints[i]].x==x && int[ints[i]].y==y) {
+				int[ints[i]].x==cx && int[ints[i]].y==cy) {
 				potential_output = ints[i]
 				break
 			}
@@ -96,17 +156,17 @@ function colliding(subject, dir) { //get whatever it's colliding with
 
 		return 'out_of_bounds'+potential_output
 	}
-	else if (r[y][x] != 0) { return 'wall' }
+	else if (r[cy][cx] != 0) { return 'wall' }
 
 	//colliding with interactable object
-	x = int[subject].x+dir_coords[dir].x;
-	y = int[subject].y+dir_coords[dir].y;
+	cx = x+dir_coords[dir].x;
+	cy = y+dir_coords[dir].y;
 
 	let ints = Object.getOwnPropertyNames(int);
 	for (let i=0; i<ints.length; i++) {
 		let potential_output = ints[i];
-		if (int[potential_output].room==int[subject].room &&
-			int[potential_output].x==x && int[potential_output].y==y) {
+		if (int[potential_output].room==room &&
+			int[potential_output].x==cx && int[potential_output].y==cy) {
 			return potential_output
 		}
 	}
@@ -115,12 +175,14 @@ function colliding(subject, dir) { //get whatever it's colliding with
 }
 
 function changeRoom(subject) {
-	let newx = int[subject].x, newy = int[subject].y;
+	const { x, y } = int[subject];
 
-	if (int[subject].y==0) { newy = cellsize*7 }
-	else if (int[subject].x==0) { newx = cellsize*7 }
-	else if (int[subject].y==cellsize*7) { newy = 0 }
-	else if (int[subject].x==cellsize*7) {newx = 0 }
+	let newx = x, newy = y;
+
+	if (y==0) { newy = cellsize*7 }
+	else if (x==0) { newx = cellsize*7 }
+	else if (y==cellsize*7) { newy = 0 }
+	else if (x==cellsize*7) {newx = 0 }
 
 	int[subject].room = nextRoom(subject);
 
@@ -130,16 +192,18 @@ function changeRoom(subject) {
 }
 
 function nextRoom(subject) {
+	const { x, y, room } = int[subject];
+
 	let rooms = Object.getOwnPropertyNames(map);
-	let room_name = int[subject].room;
+	let room_name = room;
 
-	let rx = map[int[subject].room].x;
-	let ry = map[int[subject].room].y;
+	let rx = map[room].x;
+	let ry = map[room].y;
 
-	if (int[subject].y==0) { ry--; }
-	else if (int[subject].x==0) { rx--; }
-	else if (int[subject].y==cellsize*7) { ry++; }
-	else if (int[subject].x==cellsize*7) { rx++; }
+	if (y==0) { ry--; }
+	else if (x==0) { rx--; }
+	else if (y==cellsize*7) { ry++; }
+	else if (x==cellsize*7) { rx++; }
 
 	for (let i=0; i<Object.keys(map).length; i++) {
 		if (map[rooms[i]].x == rx && map[rooms[i]].y == ry) {
@@ -229,12 +293,24 @@ function surrounding(subject) {
 		if (potential_subject!=null &&
 			potential_subject!='out_of_bounds' &&
 			potential_subject!='wall') {
-			s.push(potential_subject)
+			s.push(potential_subject);
 		}
 	}
 
 	return s
 }
+function surroundingInteractable(subject) {
+	let s = surrounding(subject);
+
+	for (let i=s.length-1; i>=0; i--) {
+		if (int[s[i]].interaction==undefined) {
+			s.splice(i,1)
+		}
+	}
+
+	return s
+}
+
 var dir_coords = [
 	{x: 0, y: -cellsize},
 	{x: -cellsize, y: 0},
@@ -273,17 +349,18 @@ int.player.design = int_design.player;
 int.player.force = 0;
 
 //OTHER INTS
-function spawnInt(subject, f, room_name, d) { //intname, force, roomname, design
+function spawnInt(subject, f, room_name, d, i) { //intname, force, roomname, design
 	int[subject] = {};
 	int[subject].room = room_name;
 	int[subject].design = int_design[d];
 	int[subject].force = f;
-	int[subject].interact = "";
+	int[subject].interaction = i;
 
 	let empty_space = findEmptySpace(room_name);
-
-	int[subject].x = empty_space.x;
-	int[subject].y = empty_space.y;
+	if (empty_space) {
+		int[subject].x = empty_space.x;
+		int[subject].y = empty_space.y;
+	}
 }
 
 function findEmptySpace(room_name) {
@@ -320,7 +397,8 @@ function findEmptySpace(room_name) {
 		potential_cells.splice(index,1)
 	}
 
-	let empty_cell = potential_cells[Math.floor(Math.random()*potential_cells.length)];
+	if (potential_cells.length==0) { return null }
 
+	let empty_cell = potential_cells[Math.floor(Math.random()*potential_cells.length)];
 	return {x: empty_cell[0], y: empty_cell[1]};
 }
