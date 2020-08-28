@@ -84,6 +84,17 @@
 			-moz-box-sizing: border-box;    /* Firefox, other Gecko */
 			box-sizing: border-box;         /* Opera/IE 8+ */
 		}
+
+		@media only screen and (max-device-width: 480px) {
+			:root {
+				--size: 90vw;
+			}
+		}
+		@media only screen and (max-device-height: 480px) {
+			:root {
+				--size: 90vh;
+			}
+		}
 	</style>
 </head>
 
