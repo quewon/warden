@@ -163,8 +163,6 @@ function mapGen() {
 		map.lobby.room_shape = map.lobby.room_shape.replace(room_tags[fill],'');
 	}
 
-	int.player.room = 'dock';
-
 	function placeCargo(room) {
 		let empty_cell = findEmptyAdjCells(map[room].x, map[room].y);
 		if (empty_cell.length==1) { empty_cell = empty_cell[0] }
