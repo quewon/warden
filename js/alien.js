@@ -9,6 +9,7 @@ class alien {
     } else {
       this.img = alienImage();
     }
+    this.type = p.type || "rando";
 
     this.state = "idle";
     this.moveScene(p.scene || "hub");
@@ -26,13 +27,43 @@ class alien {
       position: {
         x: this.position.x,
         y: this.position.y
-      }
+      },
+      direction: undefined,
+      prevDirection: undefined,
     };
+    this.speed = 1;
   }
 
-  moveScene(s) {
-    scenes[s].aliens.push(this);
-    this.scene = s;
+  update() {
+    console.log(this.name);
+
+    switch (this.type) {
+
+      case "player":
+        break;
+
+      case "rando":
+
+        let rand = Math.random() * 4 | 0;
+
+        switch (rand) {
+          case 0:
+            this.move("Up");
+            break;
+          case 1:
+            this.move("Down");
+            break;
+          case 2:
+            this.move("Left");
+            break;
+          case 3:
+            this.move("Right");
+            break;
+        }      
+
+        break;
+
+    }
   }
 
   draw() {
@@ -40,11 +71,12 @@ class alien {
     let gx = this.animation.goal.x;
     let ay = this.animation.position.y;
     let gy = this.animation.goal.y;
+    let s = this.speed;
 
-    if (ax>gx) ax--;
-    else if (ax<gx) ax++;
-    if (ay>gy) ay--;
-    else if (ay<gy) ay++;
+    if (ax>gx) ax -= s;
+    else if (ax<gx) ax += s;
+    if (ay>gy) ay -= s;
+    else if (ay<gy) ay += s;
 
     if (ax == gx && ay == gy) {
       this.position.x = ax;
@@ -57,30 +89,56 @@ class alien {
     _c.drawImage(this.img, ax, ay);
   }
 
-  move(direction, dt) {
+  move(direction) {
+    if (this.type == "player") {
+
+      // if just started moving
+      // or direction has changed
+
+      if (
+        (
+          this.animation.position.y == this.position.y &&
+          this.animation.position.x == this.position.x
+        ) ||
+        direction != this.animation.prevDirection
+      ) {
+        scenes[this.scene].update();
+      }
+    }
+
+    this.animation.prevDirection = this.animation.direction;
+
     switch (direction) {
       case "Up":
 
         this.animation.goal.y = this.position.y-8;
+        this.animation.direction = "Up";
 
         break;
       case "Down":
 
         this.animation.goal.y = this.position.y+8;
+        this.animation.direction = "Down";
 
         break;
       case "Left":
 
         this.animation.goal.x = this.position.x-8;
+        this.animation.direction = "Left";
 
         break;
       case "Right":
 
         this.animation.goal.x = this.position.x+8;
+        this.animation.direction = "Right";
 
         break;
     }
+  }
 
+  moveScene(s) {
+    scenes[s].aliens.push(this);
+    this.scene = s;
   }
 }
 

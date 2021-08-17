@@ -3,7 +3,8 @@ var bank = {
     name: "you",
     img: "player.png",
     scene: "hub",
-    position: { x:0, y:0 }
+    position: { x:0, y:0 },
+    type: "player",
   },
   hub: {
     aliens: []

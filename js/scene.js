@@ -14,4 +14,11 @@ class scene {
       alien.draw();
     }
   }
+
+  update() {
+    for (let a in this.aliens) {
+      let alien = this.aliens[a];
+      alien.update();
+    }
+  }
 }

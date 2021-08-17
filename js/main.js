@@ -117,10 +117,9 @@ function init() {
 }
 
 function animate() {
-  let s = scenes[scenes.current];
   _c.clearRect(0, 0, _canvas.width, _canvas.height);
 
-  s.draw();
+  scenes[scenes.current].draw();
 
   update();
   requestAnimationFrame(animate);
@@ -130,6 +129,8 @@ function update() {
   clock.now = Date.now();
   clock.delta = clock.now - clock.prev;
   clock.prev = clock.now;
+
+  // scenes[scenes.current].update();
 
   Controls.key.update(clock.delta);
 }
