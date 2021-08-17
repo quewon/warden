@@ -4,37 +4,79 @@ class alien {
     this.name = p.name || alienName();
     this.age = p.age || alienAge();
     if (p.img) {
-      this.img = dataify("img/"+p.img);
+      let image = imgs[p.img];
+      this.img = spriteFilter(image);
     } else {
-      this.img = alienImage()
+      this.img = alienImage();
     }
 
     this.state = "idle";
-    this.position = { x:0, y:0 };
     this.moveScene(p.scene || "hub");
+
+    this.position = p.position ||
+      {
+        x: Math.floor(Math.random() * scenes[this.scene].width-this.img.width)*8,
+        y: Math.floor(Math.random() * scenes[this.scene].height-this.img.height)*8
+      };
+    this.animation = {
+      goal: {
+        x: this.position.x,
+        y: this.position.y
+      },
+      position: {
+        x: this.position.x,
+        y: this.position.y
+      }
+    };
   }
 
   moveScene(s) {
     scenes[s].aliens.push(this);
+    this.scene = s;
   }
 
-  update() {
+  draw() {
+    let ax = this.animation.position.x;
+    let gx = this.animation.goal.x;
+    let ay = this.animation.position.y;
+    let gy = this.animation.goal.y;
 
+    if (ax>gx) ax--;
+    else if (ax<gx) ax++;
+    if (ay>gy) ay--;
+    else if (ay<gy) ay++;
+
+    if (ax == gx && ay == gy) {
+      this.position.x = ax;
+      this.position.y = ay;
+    }
+
+    this.animation.position.x = ax;
+    this.animation.position.y = ay;
+
+    _c.drawImage(this.img, ax, ay);
   }
 
-  move(direction) {
-
+  move(direction, dt) {
     switch (direction) {
       case "Up":
+
+        this.animation.goal.y = this.position.y-8;
 
         break;
       case "Down":
 
+        this.animation.goal.y = this.position.y+8;
+
         break;
       case "Left":
 
+        this.animation.goal.x = this.position.x-8;
+
         break;
       case "Right":
+
+        this.animation.goal.x = this.position.x+8;
 
         break;
     }
@@ -147,8 +189,6 @@ function alienImage() {
 
   // DRAW IT!!
 
-  _e.fillStyle = "#ebebeb";
-
   for (let y in m) {
     for (let x in m[y]) {
       switch (m[y][x]) {
@@ -171,9 +211,19 @@ function alienImage() {
           );
           break;
         case "body":
-          _e.fillStyle = "#141414";
+          _e.fillStyle =
+            "rgba("+
+            Config.filter[20][0]+","+
+            Config.filter[20][1]+","+
+            Config.filter[20][2]+","+
+            "255)";
           _e.fillRect(x*8, y*8, 8, 8);
-          _e.fillStyle = "#ebebeb";
+          _e.fillStyle =
+            "rgba("+
+            Config.filter[235][0]+","+
+            Config.filter[235][1]+","+
+            Config.filter[235][2]+","+
+            "255)";
           _e.fillRect(x*8+1, y*8+1, 6, 6);
           break;
         case "leg":
@@ -269,9 +319,9 @@ function alienImage() {
             let downright = i + imgdata.width*4 + 4;
 
             if (
-              data[i] == 20 &&
-              data[i+1] == 20 &&
-              data[i+2] == 20 &&
+              data[i] == Config.filter[20][0] &&
+              data[i+1] == Config.filter[20][1] &&
+              data[i+2] == Config.filter[20][2] &&
 
               (
                 data[down+3] != 0 &&
@@ -284,9 +334,9 @@ function alienImage() {
                 data[downright+3] != 0
               )
             ) {
-              data[i] = 235;
-              data[i+1] = 235;
-              data[i+2] = 235;
+              data[i] = Config.filter[235][0];
+              data[i+1] = Config.filter[235][1];
+              data[i+2] = Config.filter[235][2];
             }
           }
           _e.putImageData(imgdata, x*8-1, y*8-2);
@@ -310,9 +360,9 @@ function alienImage() {
             let downright = i + imgdata.width*4 + 4;
 
             if (
-              data[i] == 20 &&
-              data[i+1] == 20 &&
-              data[i+2] == 20 &&
+              data[i] == Config.filter[20][0] &&
+              data[i+1] == Config.filter[20][1] &&
+              data[i+2] == Config.filter[20][2] &&
 
               (
                 data[down+3] != 0 &&
@@ -325,9 +375,9 @@ function alienImage() {
                 data[downright+3] != 0
               )
             ) {
-              data[i] = 235;
-              data[i+1] = 235;
-              data[i+2] = 235;
+              data[i] = Config.filter[235][0];
+              data[i+1] = Config.filter[235][1];
+              data[i+2] = Config.filter[235][2];
             }
           }
           _e.putImageData(imgdata, x*8+6, y*8-1);
@@ -336,7 +386,17 @@ function alienImage() {
     }
   }
 
-  return _e.getImageData(minX*8, minY*8, (maxX-minX+1)*8, (maxY-minY+1)*8)
+  imgdata = _e.getImageData(minX*8, minY*8, (maxX-minX+1)*8, (maxY-minY+1)*8);
+
+  _extra.width = (maxX-minX+1)*8;
+  _extra.height = (maxY-minY+1)*8;
+
+  _e.putImageData(imgdata, 0, 0);
+
+  let image = new Image();
+  image.src = _extra.toDataURL();
+
+  return image
 }
 
 function alienName() {
@@ -345,18 +405,4 @@ function alienName() {
 
 function alienAge() {
   return 10
-}
-
-function dataify(src) {
-  let img = new Image();
-  img.src = src;
-
-  let w = img.width;
-  let h = img.height;
-  _extra.width = w;
-  _extra.height = h;
-  _e.clearRect(0, 0,  w, h);
-  _e.drawImage(img, 0, 0, w, h);
-
-  return _e.getImageData(0, 0, w, h)
 }
