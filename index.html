@@ -1,177 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>warden</title>
-	<style>
-		:root {
-			/*
-			primary: player + things player cannot affect
-			secondary: pull/draggable
-			bg: background + detailwork
-			*/
-
-			/* FRESH SODA (DARK)
-			--bg: #056676;
-			--primary: #e8ded2;
-			--secondary: #5eaaa8;
-			*/
-
-			/* BABY BOY (LIGHT)
-			--bg: #f6f5f5;
-			--primary: #145374;
-			--secondary: #ee6f57;
-			*/
-
-			/* MINIONS AND PLUMS (DARK)
-			--bg: #3c2946;
-			--primary: #ffd571;
-			--secondary: #56556e;
-			*/
-
-			/* MILK & TEA (LIGHT)
-			--bg: #f5f1da;
-			--primary: #96bb7c;
-			--secondary: #eebb4d;
-			*/
-
-			--bg: #056676;
-			--primary: #e8ded2;
-			--secondary: #5eaaa8;
-
-			--border: 3px dashed var(--gui);
-			--size: 300px;
-
-			font-family: monospace;
-			font-size: 17px;
-			background-color: var(--bg);
-			color: var(--primary);
-		}
-		.game_screen {
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			width: var(--size);
-			height: var(--size);
-		}
-		#map {
-			border: var(--border);
-			-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-			-moz-box-sizing: border-box;    /* Firefox, other Gecko */
-			box-sizing: border-box;         /* Opera/IE 8+ */
-		}
-		#int_box {
-			background-color: var(--primary);
-			margin-top:0;
-
-		}
-		#int_box_text {
-			text-align: center;
-			font-weight: 700;
-			width: 90%;
-			color: var(--secondary);
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			position: absolute;
-			margin-top:0;
-		}
-
-		div {
-			margin-top: 10px;
-			text-align: center;
-			-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-			-moz-box-sizing: border-box;    /* Firefox, other Gecko */
-			box-sizing: border-box;         /* Opera/IE 8+ */
-		}
-
-		@media only screen and (max-device-width: 480px) {
-			:root {
-				--size: 90vw;
-			}
-		}
-		@media only screen and (max-device-height: 480px) {
-			:root {
-				--size: 90vh;
-			}
-		}
-	</style>
+  <meta charset="utf-8">
+  <title></title>
+  <link rel="stylesheet" type="text/css" href="main.css">
 </head>
-
 <body>
-	<div>[WASD] or [ARROW KEYS] TO MOVE<br />[SPACE] TO INTERACT & PULL</div>
-	<canvas id="main_canvas" width="960" height="960" class="game_screen"></canvas><canvas id="map" width="960" height="960" class="game_screen" style="display:none"></canvas>
-	<div id="int_box" class="game_screen" style="display:none"><div id="int_box_text"></div></div>
+
+  <canvas id="canvas" class="center"></canvas>
+  <canvas id="extra" class=""></canvas>
+
 </body>
 
-<script>
-	var style = getComputedStyle(document.body);
-	var canvas = document.getElementById("main_canvas");
-	var c = canvas.getContext('2d');
-	var width = canvas.width, height = canvas.height;
+<script src="lib/controls.js"></script>
+<script src="lib/gen.js"></script>
+<script src="lib/type.js"></script>
 
-	var map_canvas = document.getElementById("map");
-	var map_c = map_canvas.getContext('2d');
-	var int_box = document.getElementById("int_box");
-	var int_box_text = document.getElementById("int_box_text");
-
-	var cellsize = Math.round(width/8);
-	var pixelsize = cellsize/8;
-
-	//animation loop
-	function animate() {
-		requestAnimationFrame(animate);
-		c.clearRect(0, 0, width, height);
-
-		drawRoom(int.player.room);
-		drawInts();
-
-		if (map_canvas.style.display=="block") {
-			map_c.clearRect(0, 0, width, height);
-			drawMap();
-		}
-	}
-
-	var interacting = false;
-	var dragging = false;
-	var pause_locked = false;
-
-	function keydown(event) {
-		event = event || window.event;
-		let key = event.key || event.which || event.keyCode;
-
-		if (pause_locked) { return }
-
-		if (key=='w' || key=='ArrowUp') { move('player', 0) }
-		else if (key=='a' || key=='ArrowLeft') { move('player', 1) }
-		else if (key=='s' || key=='ArrowDown') { move('player', 2) }
-		else if (key=='d' || key=='ArrowRight') { move('player', 3) }
-
-		if (key==' ') { interacting = true }
-	}
-
-	function keyup(event) {
-		event = event || window.event;
-		let key = event.key || event.which || event.keyCode;
-
-		if (key==' ') {
-			let subject = surroundingInteractable('player')[0];
-			if (subject && !dragging) {
-				interact(subject);
-			}
-			interacting = false;
-			dragging = false;
-		}
-	}
-</script>
-<script src="room.js"></script>
-<script src="int.js"></script>
-<script>
-	window.onkeydown = keydown;
-	window.onkeyup = keyup;
-
-	mapGen();
-	animate();
-</script>
+<script src="js/config.js"></script>
+<script src="js/scene.js"></script>
+<script src="js/alien.js"></script>
+<script src="js/main.js"></script>
 
 </html>
