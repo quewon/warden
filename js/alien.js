@@ -30,13 +30,12 @@ class alien {
       },
       direction: undefined,
       prevDirection: undefined,
+      flip: false,
     };
     this.speed = 1;
   }
 
   update() {
-    console.log(this.name);
-
     switch (this.type) {
 
       case "player":
@@ -67,6 +66,7 @@ class alien {
   }
 
   draw() {
+    // animate
     let ax = this.animation.position.x;
     let gx = this.animation.goal.x;
     let ay = this.animation.position.y;
@@ -86,7 +86,9 @@ class alien {
     this.animation.position.x = ax;
     this.animation.position.y = ay;
 
-    _c.drawImage(this.img, ax, ay);
+    // draw
+
+    drawImage(this.img, ax, ay, this.animation.flip);
   }
 
   move(direction) {
@@ -107,30 +109,29 @@ class alien {
     }
 
     this.animation.prevDirection = this.animation.direction;
+    this.animation.direction = direction;
 
     switch (direction) {
       case "Up":
 
         this.animation.goal.y = this.position.y-8;
-        this.animation.direction = "Up";
 
         break;
       case "Down":
 
         this.animation.goal.y = this.position.y+8;
-        this.animation.direction = "Down";
 
         break;
       case "Left":
 
         this.animation.goal.x = this.position.x-8;
-        this.animation.direction = "Left";
+        this.animation.flip = true;
 
         break;
       case "Right":
 
         this.animation.goal.x = this.position.x+8;
-        this.animation.direction = "Right";
+        this.animation.flip = false;
 
         break;
     }
@@ -453,6 +454,24 @@ function alienImage() {
 
   let image = new Image();
   image.src = _extra.toDataURL();
+
+  let flip = false;
+  if (headspot[0] < _extra.width/16) {
+    // console.log(headspot[0], _extra.width/8);
+    flip = true;
+  }
+
+  if (flip) {
+    _e.translate(_extra.width, 0);
+    _e.scale(-1, 1);
+
+    _e.clearRect(0, 0, _extra.width, _extra.height);
+    _e.drawImage(image, 0, 0);
+
+    _e.setTransform(1, 0, 0, 1, 0, 0);
+
+    image.src = _extra.toDataURL();
+  }
 
   return image
 }

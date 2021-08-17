@@ -169,3 +169,35 @@ function dataFilter(imgdata) {
 
   return imgdata
 }
+
+function drawImage(img, x, y, flip, flop, center, deg) {
+  _c.save();
+
+  let width = img.width;
+  let height = img.height;
+
+  if(typeof center === "undefined") center = false;
+
+  // Set rotation point to center of image, instead of top/left
+  if(center) {
+      x -= width/2;
+      y -= height/2;
+  }
+
+  // Set the origin to the center of the image
+  _c.translate(x + width/2, y + height/2);
+
+  // Rotate the canvas around the origin
+  var rad = 2 * Math.PI - deg * Math.PI / 180;    
+  _c.rotate(rad);
+
+  // Flip/flop the canvas
+  if(flip) flipScale = -1; else flipScale = 1;
+  if(flop) flopScale = -1; else flopScale = 1;
+  _c.scale(flipScale, flopScale);
+
+  // Draw the image    
+  _c.drawImage(img, -width/2, -height/2, width, height);
+
+  _c.restore();
+}
