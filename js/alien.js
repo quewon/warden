@@ -21,8 +21,7 @@ class alien {
       position: { x: this.position.x, y: this.position.y },
       flip: false,
       time: 0,
-      width: this.img.width,
-      height: this.img.height,
+      distortion: [0, 0],
     };
     this.buffer = [];
     this.speed = 0.06;
@@ -107,21 +106,15 @@ class alien {
   }
 
   squash() {
-    this.animation.width = this.img.width + 1;
-    this.animation.height = this.img.height - 1;
+    this.animation.distortion = [1, -1];
   }
 
   stretch() {
-    this.animation.width = this.img.width - 1;
-    this.animation.height = this.img.height + 1;
-  }
-
-  squastretch() {
-    this.animation.width = this.img.width + 1;
-    this.animation.height = this.img.height + 1;
+    this.animation.distortion = [-1, 1];
   }
  
   proportional() {
+    this.animation.distortion = [0, 0];
     this.animation.width = this.img.width;
     this.animation.height = this.img.height;
   }
@@ -131,8 +124,8 @@ class alien {
     let yoffset = 0;
 
     if (this.buffer.length > 0) {
-      xoffset = this.buffer[0][0];
-      yoffset = this.buffer[0][1];
+      xoffset = this.animation.distortion[0] + this.buffer[0][0];
+      yoffset = this.animation.distortion[1] + this.buffer[0][1];
     }
 
     drawImage({
@@ -140,8 +133,8 @@ class alien {
       x: this.animation.position.x - xoffset,
       y: this.animation.position.y - yoffset,
       flip: this.animation.flip,
-      width: this.animation.width,
-      height: this.animation.height,
+      width: this.img.width + this.animation.distortion[0],
+      height: this.img.height + this.animation.distortion[1]
     });
   }
 
