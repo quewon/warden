@@ -23,7 +23,6 @@ class alien {
       time: 0,
     };
     this.buffer = [];
-    this.direction = [0, 0];
     this.speed = 0.06;
 
     ref.push(this);
@@ -91,6 +90,8 @@ class alien {
       this.buffer.shift();
       this.animation.time = 0;
     }
+
+    this.colignore = null;
   }
 
   draw() {
@@ -123,7 +124,7 @@ class alien {
     let newx = Math.round(lerp(x, dx, t));
     let newy = Math.round(lerp(y, dy, t));
 
-    if (this.colliding(newx, newy, input, t).length == 0) {
+    if (this.colliding(dx, dy, input, t).length == 0) {
       this.animation.position.x = newx;
       this.animation.position.y = newy;
 
@@ -144,6 +145,7 @@ class alien {
     for (let a in aliens) {
       let alien = ref[aliens[a]];
       if (this.id == alien.id) continue;
+      if (alien.id == this.colignore) continue;
 
       let ax = alien.position.x;
       let ay = alien.position.y;
@@ -178,22 +180,15 @@ class alien {
               let apy = alien.position.y;
 
               if (
-                x + (tx*8) < apx + (ax*8) + 8 &&
-                x + (tx*8) + 8 > apx + (ax*8) &&
-                y + (ty*8) < apy + (ay*8) + 8 &&
-                y + (ty*8) + 8 > apy + (ay*8)
+                x + (tx*8) == apx + (ax*8) &&
+                y + (ty*8) == apy + (ay*8)
               ) {
                 if (input && t) {
-                  if (alien.colliding(apx, apy, input).length == 0) {
-                    // not colliding with anything -- can be moved
-                    let nudge = alien.nudge(input, t);
-
-                    if (nudge) {
-                      alien.animation.time = t;
-                      alien.move(input[0], input[1]);
-                    } else {
-                      break colmapsearch
-                    }
+                  alien.colignore = this.id;
+                  let nudge = alien.nudge(input, t);
+                  if (nudge) {
+                    alien.animation.time = t;
+                    alien.move(input[0], input[1]);
                   } else {
                     allcols.push(alien);
                     break colmapsearch
