@@ -66,7 +66,7 @@ class alien {
     }
   }
 
-  draw() {
+  update() {
     if (this.animation.time < 1 && this.buffer.length > 0) {
       let speed = this.speed + (this.buffer.length * this.speed);
       let t = this.animation.time + speed;
@@ -91,9 +91,9 @@ class alien {
       this.buffer.shift();
       this.animation.time = 0;
     }
+  }
 
-    //
-
+  draw() {
     drawImage(
       this.img,
       this.animation.position.x, 
@@ -145,8 +145,8 @@ class alien {
       let alien = ref[aliens[a]];
       if (this.id == alien.id) continue;
 
-      let ax = alien.animation.position.x;
-      let ay = alien.animation.position.y;
+      let ax = alien.position.x;
+      let ay = alien.position.y;
       let aw = alien.img.width;
       let ah = alien.img.height;
 
@@ -174,8 +174,8 @@ class alien {
             for (let ax=0; ax<alien.colmap[ay].length; ax++) {
               if (alien.colmap[ay][ax] == 0) continue;
 
-              let apx = alien.animation.position.x;
-              let apy = alien.animation.position.y;
+              let apx = alien.position.x;
+              let apy = alien.position.y;
 
               if (
                 x + (tx*8) < apx + (ax*8) + 8 &&
@@ -192,7 +192,7 @@ class alien {
                       alien.animation.time = t;
                       alien.move(input[0], input[1]);
                     } else {
-                      return false
+                      break colmapsearch
                     }
                   } else {
                     allcols.push(alien);

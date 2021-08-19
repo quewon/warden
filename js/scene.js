@@ -12,6 +12,11 @@ class scene {
 
     for (let a in this.aliens) {
       let alien = ref[this.aliens[a]];
+      alien.update();
+    }
+
+    for (let a in this.aliens) {
+      let alien = ref[this.aliens[a]];
       alien.draw();
     }
   }
