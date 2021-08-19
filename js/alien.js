@@ -1,6 +1,7 @@
 class alien {
   constructor(p) {
     p = p || {};
+    this.id = ref.length;
     this.name = p.name || alienName();
     this.age = p.age || alienAge();
     if (p.img) {
@@ -13,29 +14,26 @@ class alien {
 
     this.state = "idle";
     this.moveScene(p.scene || "hub");
-
+    
+    this.colmap = p.colmap || this.img.colmap;
     this.position = p.position ||
       {
-        x: Math.floor(Math.random() * scenes[this.scene].width-this.img.width)*8,
-        y: Math.floor(Math.random() * scenes[this.scene].height-this.img.height)*8
+        x: Math.floor(Math.random() * scenes[this.scene].width-this.colmap[0].length)*8,
+        y: Math.floor(Math.random() * scenes[this.scene].height-this.colmap.length)*8
       };
     this.animation = {
-      goal: {
-        x: this.position.x,
-        y: this.position.y
-      },
-      position: {
-        x: this.position.x,
-        y: this.position.y
-      },
-      direction: undefined,
-      prevDirection: undefined,
+      position: { x: this.position.x, y: this.position.y },
       flip: false,
+      time: 0,
     };
-    this.speed = 1;
+    this.buffer = [];
+    this.direction = [0, 0];
+    this.speed = 0.1;
+
+    ref.push(this);
   }
 
-  update() {
+  step() {
     switch (this.type) {
 
       case "player":
@@ -43,102 +41,164 @@ class alien {
 
       case "rando":
 
-        let rand = Math.random() * 4 | 0;
+        // let rand = Math.random() * 4 | 0;
 
-        switch (rand) {
-          case 0:
-            this.move("Up");
-            break;
-          case 1:
-            this.move("Down");
-            break;
-          case 2:
-            this.move("Left");
-            break;
-          case 3:
-            this.move("Right");
-            break;
-        }      
+        // switch (rand) {
+        //   case 0:
+        //     this.move("Up");
+        //     break;
+        //   case 1:
+        //     this.move("Down");
+        //     break;
+        //   case 2:
+        //     this.move("Left");
+        //     break;
+        //   case 3:
+        //     this.move("Right");
+        //     break;
+        // }
 
         break;
 
+    }
+
+    if (this.type=="player") {
+      if (this.buffer.length > 0) {
+        if (this.buffer[0][0] < 0) {
+          this.animation.flip = true;
+        } else if (this.buffer[0][0] > 0) {
+          this.animation.flip = false;
+        }
+      }
+    }
+
+    if (this.buffer.length > 0) {
+      let cols = this.colliding(
+        this.position.x + this.buffer[0][0]*8,
+        this.position.y + this.buffer[0][1]*8
+        );
+      for (let a in cols) {
+        cols[a].move(this.buffer[0][0], this.buffer[0][1])
+      }
     }
   }
 
   draw() {
-    // animate
-    let ax = this.animation.position.x;
-    let gx = this.animation.goal.x;
-    let ay = this.animation.position.y;
-    let gy = this.animation.goal.y;
-    let s = this.speed;
+    // this.buffer[0] = [0, 1] etc
 
-    if (ax>gx) ax -= s;
-    else if (ax<gx) ax += s;
-    if (ay>gy) ay -= s;
-    else if (ay<gy) ay += s;
+    if (this.animation.time < 1 && this.buffer.length > 0) {
+      if (this.animation.time == 0) {
+        scenes[this.scene].step();
+      }
 
-    if (ax == gx && ay == gy) {
-      this.position.x = ax;
-      this.position.y = ay;
+      let speed = this.speed + (this.buffer.length * this.speed);
+      this.animation.time += speed;
+      this.animation.time = this.animation.time;
+
+      if (this.animation.time > 1) this.animation.time = 1;
+
+      let x = this.position.x;
+      let y = this.position.y;
+      let t = this.animation.time;
+      let dx = x + (this.buffer[0][0] * 8);
+      let dy = y + (this.buffer[0][1] * 8);
+
+      this.animation.position.x = lerp(x, dx, t);
+      this.animation.position.y = lerp(y, dy, t);
+    } else if (this.buffer.length > 0) {
+      this.position = {
+        x: this.animation.position.x,
+        y: this.animation.position.y
+      };
+      this.buffer.shift();
+      this.animation.time = 0;
     }
 
-    this.animation.position.x = ax;
-    this.animation.position.y = ay;
+    //
 
-    // draw
-
-    drawImage(this.img, ax, ay, this.animation.flip);
+    drawImage(
+      this.img,
+      Math.round(this.animation.position.x), 
+      Math.round(this.animation.position.y),
+      this.animation.flip
+      );
   }
 
-  move(direction) {
-    if (this.type == "player") {
+  move(x, y) {
 
-      // if just started moving
-      // or direction has changed
+    if (this.buffer.length == 0) {
+      this.buffer.push([x, y]);
+    }
+
+  }
+
+  pushbuffer(array) {
+    this.buffer.push(array);
+  }
+
+  colliding(x, y) {
+    let w = this.img.width;
+    let h = this.img.height;
+
+    let aliens = scenes[this.scene].aliens;
+
+    let col = [];
+
+    for (let a in aliens) {
+      let alien = ref[aliens[a]];
+      if (this.id == alien.id) continue;
+
+      let ax = alien.position.x;
+      let ay = alien.position.y;
+      let aw = alien.img.width;
+      let ah = alien.img.height;
 
       if (
-        (
-          this.animation.position.y == this.position.y &&
-          this.animation.position.x == this.position.x
-        ) ||
-        direction != this.animation.prevDirection
+        x < ax + aw &&
+        x + w > ax &&
+        y < ay + ah &&
+        y + h > ay
       ) {
-        scenes[this.scene].update();
+        col.push(alien);
       }
     }
 
-    this.animation.prevDirection = this.animation.direction;
-    this.animation.direction = direction;
+    var allcols = [];
 
-    switch (direction) {
-      case "Up":
+    for (let a in col) {
+      var alien = col[a];
 
-        this.animation.goal.y = this.position.y-8;
+      for (let ty in this.colmap) {
+        for (let tx in this.colmap[ty]) {
+          if (this.colmap[ty][tx] == 0) continue;
 
-        break;
-      case "Down":
+          for (let ay in alien.colmap) {
 
-        this.animation.goal.y = this.position.y+8;
+            for (let ax=0; ax<alien.colmap[ay].length; ax++) {
+              if (alien.colmap[ay][ax] == 0) continue;
 
-        break;
-      case "Left":
+              let apx = alien.position.x;
+              let apy = alien.position.y;
 
-        this.animation.goal.x = this.position.x-8;
-        this.animation.flip = true;
+              if (
+                x + (tx*8) == apx + (ax*8) &&
+                y + (ty*8) == apy + (ay*8)
+              ) {
+                allcols.push(alien)
+              }
+            }
+          }
 
-        break;
-      case "Right":
+        }
+      }
 
-        this.animation.goal.x = this.position.x+8;
-        this.animation.flip = false;
-
-        break;
     }
+
+    return allcols
   }
 
   moveScene(s) {
-    scenes[s].aliens.push(this);
+    scenes[s].aliens.push(this.id);
     this.scene = s;
   }
 }
@@ -473,8 +533,61 @@ function alienImage() {
     image.src = _extra.toDataURL();
   }
 
+  let map = [];
+  let i = 0;
+  for (let y=minY; y<=maxY; y++) {
+    map[i] = [];
+    for (let x=minX; x<=maxX; x++) {
+      if (m[y][x] != 0) {
+        map[i].push(1)
+      } else {
+        map[i].push(0)
+      }
+    }
+    i++;
+  }
+
+  image.colmap = map;
+
   return image
 }
+
+// function colmap(img) {
+//   let map = [];
+
+//   _extra.width = 8;
+//   _extra.height = 8;
+
+//   let tilesX = Math.floor(img.width/8);
+//   let tilesY = Math.floor(img.height/8);
+
+//   for (let y=0; y<tilesY; y++) {
+//     map[y] = [];
+//     for (let x=0; x<tilesX; x++) {
+//       map[y][x] = 0;
+
+//       _e.clearRect(0, 0, 8, 8);
+//       _e.drawImage(img, tilesX*8, tilesY*8, 8, 8, 0, 0, 8, 8);
+
+//       let imgdata = _e.getImageData(0, 0, 8, 8);
+//       let data = imgdata.data;
+
+//       check: for (let i=0; i<data.length; i+=4) {
+//         if (data[i+3] == 0) {
+//           map[y][x] = 1;
+//           break check;
+//         }
+//       }
+//     }
+//   }
+
+//   if (map.length == 0) {
+//     console.log(img.complete);
+//     console.log(img.width, img.height);
+//   }
+
+//   return map
+// }
 
 function alienName() {
   return "lol"

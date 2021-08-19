@@ -10,15 +10,15 @@ class scene {
     _c.fillRect(0, 0, _canvas.width, _canvas.height);
 
     for (let a in this.aliens) {
-      let alien = this.aliens[a];
+      let alien = ref[this.aliens[a]];
       alien.draw();
     }
   }
 
-  update() {
+  step() {
     for (let a in this.aliens) {
-      let alien = this.aliens[a];
-      alien.update();
+      let alien = ref[this.aliens[a]];
+      alien.step();
     }
   }
 }

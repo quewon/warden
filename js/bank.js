@@ -5,6 +5,7 @@ var bank = {
     scene: "hub",
     position: { x:0, y:0 },
     type: "player",
+    colmap: [[1]],
   },
   hub: {
     aliens: []

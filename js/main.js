@@ -10,14 +10,7 @@ load();
 var clock;
 var imgs;
 
-function tick() {
-    var now = Date.now();
-    var dt = now - lastUpdate;
-    lastUpdate = now;
-
-    update(dt);
-    render(dt);
-}
+var ref = [];
 
 function load() {
   var toload = [
@@ -103,7 +96,7 @@ function init() {
   scenes = {};
   scenes.hub = new scene(bank.hub);
 
-  for (let i=0; i<20; i++) {
+  for (let i=0; i<5; i++) {
     new alien({scene:"hub"})
   }
 
@@ -129,8 +122,6 @@ function update() {
   clock.now = Date.now();
   clock.delta = clock.now - clock.prev;
   clock.prev = clock.now;
-
-  // scenes[scenes.current].update();
 
   Controls.key.update(clock.delta);
 }
@@ -200,4 +191,8 @@ function drawImage(img, x, y, flip, flop, center, deg) {
   _c.drawImage(img, -width/2, -height/2, width, height);
 
   _c.restore();
+}
+
+function lerp(start, end, t) {
+  return start * (1-t) + end * t
 }
