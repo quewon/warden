@@ -51,15 +51,34 @@ function load_sounds() {
   console.log('loading sounds...');
 
   sounds = {
-    step: new Howl({src: "sound/step.wav"}),
+    step: [
+      new Howl({src: "sound/steps/0.wav"}),
+      new Howl({src: "sound/steps/1.wav"}),
+      new Howl({src: "sound/steps/2.wav"}),
+      new Howl({src: "sound/steps/3.wav"}),
+      new Howl({src: "sound/steps/4.wav"}),
+      new Howl({src: "sound/steps/5.wav"}),
+      new Howl({src: "sound/steps/6.wav"}),
+      new Howl({src: "sound/steps/7.wav"}),
+      new Howl({src: "sound/steps/8.wav"}),
+      new Howl({src: "sound/steps/9.wav"}),
+    ],
   };
 
-  let check = setInterval(function() {
-    let checklist = Object.keys(sounds).length;
+  var checklist = 0;
 
+  for (let i in sounds) {
+    for (let s in sounds[i]) {
+      checklist++;
+    }
+  }
+
+  let check = setInterval(function() {
     for (let i in sounds) {
-      if (sounds[i]._state == "loaded") {
-        checklist--;
+      for (let s in sounds[i]) {
+        if (sounds[i][s].state() == "loaded") {
+          checklist--;
+        }
       }
     }
     if (checklist == 0) {
@@ -232,4 +251,8 @@ function drawImage(P) {
 
 function lerp(start, end, t) {
   return start * (1-t) + end * t
+}
+
+function playsound(name) {
+  G.arrayRandom(sounds[name]).play();
 }

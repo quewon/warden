@@ -63,7 +63,7 @@ class alien {
         }
       }
 
-      sounds.step.play();
+      playsound("step");
     }
   }
 
