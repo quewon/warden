@@ -67,7 +67,7 @@ class alien {
 
   update() {
     if (this.animation.time < 1 && this.buffer.length > 0) {
-      let speed = this.speed + (this.buffer.length * this.speed);
+      let speed = this.speed + (Math.pow(this.buffer.length, 2) * this.speed);
       let t = this.animation.time + speed;
       if (t > 1) t = 1;
 
