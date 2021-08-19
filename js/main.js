@@ -8,11 +8,17 @@ var alienParts;
 load();
 
 var clock;
-var imgs;
+var imgs, sounds;
 
 var ref = [];
 
 function load() {
+  load_imgs();
+}
+
+function load_imgs() {
+  console.log('loading images...');
+
   var toload = [
     "player.png",
 
@@ -34,15 +40,39 @@ function load() {
     img.onload = function() {
       checklist--;
       if (checklist == 0) {
-        init();
+        load_sounds();
       }
     };
     imgs[toload[i]] = img;
   }
 }
 
+function load_sounds() {
+  console.log('loading sounds...');
+
+  sounds = {
+    step: new Howl({src: "sound/step.wav"}),
+  };
+
+  let check = setInterval(function() {
+    let checklist = Object.keys(sounds).length;
+
+    for (let i in sounds) {
+      if (sounds[i]._state == "loaded") {
+        checklist--;
+      }
+    }
+    if (checklist == 0) {
+      init();
+      clearInterval(check);
+    }
+  }, 100);
+}
+
 function init() {
   init_controls();
+
+  console.log('initializing...');
 
   clock = {
     prev: Date.now(),

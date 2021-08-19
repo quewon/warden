@@ -1,6 +1,7 @@
 class scene {
   constructor(p) {
     this.aliens = p.aliens || [];
+    this.static = p.static || [];
     this.width = Config.viewportWidth;
     this.height = Config.viewportHeight;
   }

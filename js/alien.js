@@ -28,7 +28,7 @@ class alien {
     };
     this.buffer = [];
     this.direction = [0, 0];
-    this.speed = 0.1;
+    this.speed = 0.06;
 
     ref.push(this);
   }
@@ -70,41 +70,28 @@ class alien {
           this.animation.flip = false;
         }
       }
-    }
 
-    if (this.buffer.length > 0) {
-      let cols = this.colliding(
-        this.position.x + this.buffer[0][0]*8,
-        this.position.y + this.buffer[0][1]*8
-        );
-      for (let a in cols) {
-        cols[a].move(this.buffer[0][0], this.buffer[0][1])
-      }
+      sounds.step.play();
     }
   }
 
   draw() {
-    // this.buffer[0] = [0, 1] etc
-
     if (this.animation.time < 1 && this.buffer.length > 0) {
-      if (this.animation.time == 0) {
-        scenes[this.scene].step();
-      }
-
       let speed = this.speed + (this.buffer.length * this.speed);
-      this.animation.time += speed;
-      this.animation.time = this.animation.time;
+      let t = this.animation.time + speed;
+      if (t > 1) t = 1;
 
-      if (this.animation.time > 1) this.animation.time = 1;
+      let nudge = this.nudge(this.buffer[0], t);
 
-      let x = this.position.x;
-      let y = this.position.y;
-      let t = this.animation.time;
-      let dx = x + (this.buffer[0][0] * 8);
-      let dy = y + (this.buffer[0][1] * 8);
+      if (nudge) {
+        if (this.animation.time == 0) {
+          if (this.type=="player") scenes[this.scene].step();
+        }
 
-      this.animation.position.x = lerp(x, dx, t);
-      this.animation.position.y = lerp(y, dy, t);
+        this.animation.time = t;
+      } else {
+        this.buffer.shift();
+      }
     } else if (this.buffer.length > 0) {
       this.position = {
         x: this.animation.position.x,
@@ -118,8 +105,8 @@ class alien {
 
     drawImage(
       this.img,
-      Math.round(this.animation.position.x), 
-      Math.round(this.animation.position.y),
+      this.animation.position.x, 
+      this.animation.position.y,
       this.animation.flip
       );
   }
@@ -136,7 +123,26 @@ class alien {
     this.buffer.push(array);
   }
 
-  colliding(x, y) {
+  nudge(input, t) {
+    let x = this.position.x;
+    let y = this.position.y;
+    let dx = x + (input[0] * 8);
+    let dy = y + (input[1] * 8);
+
+    let newx = Math.round(lerp(x, dx, t));
+    let newy = Math.round(lerp(y, dy, t));
+
+    if (this.colliding(newx, newy, input, t).length == 0) {
+      this.animation.position.x = newx;
+      this.animation.position.y = newy;
+
+      return true
+    } else {
+      return false
+    }
+  }
+
+  colliding(x, y, input, t) {
     let w = this.img.width;
     let h = this.img.height;
 
@@ -148,8 +154,8 @@ class alien {
       let alien = ref[aliens[a]];
       if (this.id == alien.id) continue;
 
-      let ax = alien.position.x;
-      let ay = alien.position.y;
+      let ax = alien.animation.position.x;
+      let ay = alien.animation.position.y;
       let aw = alien.img.width;
       let ah = alien.img.height;
 
@@ -172,19 +178,39 @@ class alien {
         for (let tx in this.colmap[ty]) {
           if (this.colmap[ty][tx] == 0) continue;
 
-          for (let ay in alien.colmap) {
+          colmapsearch: for (let ay in alien.colmap) {
 
             for (let ax=0; ax<alien.colmap[ay].length; ax++) {
               if (alien.colmap[ay][ax] == 0) continue;
 
-              let apx = alien.position.x;
-              let apy = alien.position.y;
+              let apx = alien.animation.position.x;
+              let apy = alien.animation.position.y;
 
               if (
-                x + (tx*8) == apx + (ax*8) &&
-                y + (ty*8) == apy + (ay*8)
+                x + (tx*8) < apx + (ax*8) + 8 &&
+                x + (tx*8) + 8 > apx + (ax*8) &&
+                y + (ty*8) < apy + (ay*8) + 8 &&
+                y + (ty*8) + 8 > apy + (ay*8)
               ) {
-                allcols.push(alien)
+                if (input && t) {
+                  if (alien.colliding(apx, apy, input).length == 0) {
+                    // not colliding with anything -- can be moved
+                    let nudge = alien.nudge(input, t);
+
+                    if (nudge) {
+                      alien.animation.time = t;
+                      alien.move(input[0], input[1]);
+                    } else {
+                      return false
+                    }
+                  } else {
+                    allcols.push(alien);
+                    break colmapsearch
+                  }
+                } else {
+                  allcols.push(alien);
+                  break colmapsearch
+                }
               }
             }
           }
