@@ -21,6 +21,8 @@ class alien {
       position: { x: this.position.x, y: this.position.y },
       flip: false,
       time: 0,
+      width: this.img.width,
+      height: this.img.height,
     };
     this.buffer = [];
     this.speed = 0.06;
@@ -66,8 +68,18 @@ class alien {
   }
 
   update() {
+    if (this.animation.time >= 0.5) {
+      if (this.buffer[0][1] == 0) {
+        this.squash();
+      } else {
+        this.stretch();
+      }
+    } else {
+      this.proportional();
+    }
+
     if (this.animation.time < 1 && this.buffer.length > 0) {
-      let speed = this.speed + (Math.pow(this.buffer.length, 2) * this.speed);
+      let speed = this.speed + (this.buffer.length * this.speed);
       let t = this.animation.time + speed;
       if (t > 1) t = 1;
 
@@ -94,13 +106,43 @@ class alien {
     this.colignore = null;
   }
 
+  squash() {
+    this.animation.width = this.img.width + 1;
+    this.animation.height = this.img.height - 1;
+  }
+
+  stretch() {
+    this.animation.width = this.img.width - 1;
+    this.animation.height = this.img.height + 1;
+  }
+
+  squastretch() {
+    this.animation.width = this.img.width + 1;
+    this.animation.height = this.img.height + 1;
+  }
+ 
+  proportional() {
+    this.animation.width = this.img.width;
+    this.animation.height = this.img.height;
+  }
+
   draw() {
-    drawImage(
-      this.img,
-      this.animation.position.x, 
-      this.animation.position.y,
-      this.animation.flip
-      );
+    let xoffset = 0;
+    let yoffset = 0;
+
+    if (this.buffer.length > 0) {
+      xoffset = this.buffer[0][0];
+      yoffset = this.buffer[0][1];
+    }
+
+    drawImage({
+      img: this.img,
+      x: this.animation.position.x - xoffset,
+      y: this.animation.position.y - yoffset,
+      flip: this.animation.flip,
+      width: this.animation.width,
+      height: this.animation.height,
+    });
   }
 
   move(x, y) {

@@ -89,6 +89,8 @@ function init() {
   _canvas.style.width = _canvas.width * Config.viewportScale + "px";
   _canvas.style.height = _canvas.height * Config.viewportScale + "px";
 
+  _c.imageSmoothingEnabled = Config.imageSmoothingEnabled;
+
   //
 
   _extra.width = 8;
@@ -191,13 +193,18 @@ function dataFilter(imgdata) {
   return imgdata
 }
 
-function drawImage(img, x, y, flip, flop, center, deg) {
+function drawImage(P) {
   _c.save();
 
-  let width = img.width;
-  let height = img.height;
-
-  if(typeof center === "undefined") center = false;
+  let img = P.img;
+  let x = P.x;
+  let y = P.y;
+  let width = P.width || img.width;
+  let height = P.height || img.height;
+  let center = P.center || false;
+  let flip = P.flip || false;
+  let flop = P.flop || false;
+  let deg = P.deg || null;
 
   // Set rotation point to center of image, instead of top/left
   if(center) {

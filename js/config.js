@@ -14,6 +14,7 @@ var Config = {
     164: [181, 103, 175],
     235: [255, 214, 99],
   },
+  imageSmoothingEnabled: false,
 
   viewportWidth: 16,
   viewportHeight: 16,
