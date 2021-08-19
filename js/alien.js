@@ -16,11 +16,7 @@ class alien {
     this.moveScene(p.scene || "hub");
     
     this.colmap = p.colmap || this.img.colmap;
-    this.position = p.position ||
-      {
-        x: Math.floor(Math.random() * scenes[this.scene].width-this.colmap[0].length)*8,
-        y: Math.floor(Math.random() * scenes[this.scene].height-this.colmap.length)*8
-      };
+    this.position = p.position || this.randomPlacement();
     this.animation = {
       position: { x: this.position.x, y: this.position.y },
       flip: false,
@@ -33,6 +29,19 @@ class alien {
     ref.push(this);
   }
 
+  randomPlacement() {
+    let roomw = scenes[this.scene].width;
+    let roomh = scenes[this.scene].height;
+
+    let w = this.colmap[0].length;
+    let h = this.colmap.length;
+
+    let x = Math.floor(Math.random() * (roomw-w)) * 8;
+    let y = Math.floor(Math.random() * (roomh-h)) * 8;
+
+    return { x:x, y:y }
+  }
+
   step() {
     switch (this.type) {
 
@@ -40,24 +49,6 @@ class alien {
         break;
 
       case "rando":
-
-        // let rand = Math.random() * 4 | 0;
-
-        // switch (rand) {
-        //   case 0:
-        //     this.move("Up");
-        //     break;
-        //   case 1:
-        //     this.move("Down");
-        //     break;
-        //   case 2:
-        //     this.move("Left");
-        //     break;
-        //   case 3:
-        //     this.move("Right");
-        //     break;
-        // }
-
         break;
 
     }
@@ -541,24 +532,6 @@ function alienImage() {
   let image = new Image();
   image.src = _extra.toDataURL();
 
-  let flip = false;
-  if (headspot[0] < _extra.width/16) {
-    // console.log(headspot[0], _extra.width/8);
-    flip = true;
-  }
-
-  if (flip) {
-    _e.translate(_extra.width, 0);
-    _e.scale(-1, 1);
-
-    _e.clearRect(0, 0, _extra.width, _extra.height);
-    _e.drawImage(image, 0, 0);
-
-    _e.setTransform(1, 0, 0, 1, 0, 0);
-
-    image.src = _extra.toDataURL();
-  }
-
   let map = [];
   let i = 0;
   for (let y=minY; y<=maxY; y++) {
@@ -577,43 +550,6 @@ function alienImage() {
 
   return image
 }
-
-// function colmap(img) {
-//   let map = [];
-
-//   _extra.width = 8;
-//   _extra.height = 8;
-
-//   let tilesX = Math.floor(img.width/8);
-//   let tilesY = Math.floor(img.height/8);
-
-//   for (let y=0; y<tilesY; y++) {
-//     map[y] = [];
-//     for (let x=0; x<tilesX; x++) {
-//       map[y][x] = 0;
-
-//       _e.clearRect(0, 0, 8, 8);
-//       _e.drawImage(img, tilesX*8, tilesY*8, 8, 8, 0, 0, 8, 8);
-
-//       let imgdata = _e.getImageData(0, 0, 8, 8);
-//       let data = imgdata.data;
-
-//       check: for (let i=0; i<data.length; i+=4) {
-//         if (data[i+3] == 0) {
-//           map[y][x] = 1;
-//           break check;
-//         }
-//       }
-//     }
-//   }
-
-//   if (map.length == 0) {
-//     console.log(img.complete);
-//     console.log(img.width, img.height);
-//   }
-
-//   return map
-// }
 
 function alienName() {
   return "lol"

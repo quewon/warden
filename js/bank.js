@@ -11,3 +11,5 @@ var bank = {
     aliens: []
   }
 };
+
+// some aliens turn out completely transparent??
