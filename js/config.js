@@ -28,8 +28,8 @@ var Config = {
     94: [94, 94, 94],
     237: [237, 237, 237]
   },
-  hardLightRadius: 4,
-  softLightRadius: 5,
+  hardLightRadius: 3,
+  softLightRadius: 6,
   imageSmoothingEnabled: false,
 
   colKey: {

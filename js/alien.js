@@ -22,9 +22,11 @@ class alien {
       flip: false,
       time: 0,
       distortion: [0, 0],
+      duds: [],
     };
     this.buffer = [];
     this.speed = 0.06;
+    if (this.type=="player") this.findDuds();
 
     ref.push(this);
   }
@@ -55,44 +57,197 @@ class alien {
 
     if (this.type=="player") {
       playsound("step");
-
-      this.softLight();
-      this.hardLight();
     }
   }
 
-  softLight() {
-    let array = circle(Config.softLightRadius);
-    let map = scenes[this.scene].shadowmap;
+  // lighting
 
-    for (let c in array) {
-      let coord = array[c];
-      let x = this.position.x/8 + array[c][0];
-      let y = this.position.y/8 + array[c][1];
+  findDuds() {
+    let colmap = scenes[this.scene].colmap;
 
-      if (
-        x >= 0 && x < map[0].length &&
-        y >= 0 && y < map.length
-      ) {
-        map[y][x] = 1;
+    // get corners of walls & aliens
+    let verts = [];
+
+    for (let y in colmap) {
+      for (let x in colmap[y]) {
+        if (colmap[y][x] != "wall") continue;
+
+        var sx = 0, sy = 0;
+        // if (x==0) sx = 1;
+        // if (y==0) sy = 1;
+
+        // check 4 corners
+        for (let i=sy; i<2; i++) {
+          for (let ii=sx; ii<2; ii++) {
+            let vx = (parseInt(x) + ii) * 8;
+            let vy = (parseInt(y) + i) * 8;
+
+            let overlaps = false;
+            for (let c in verts) {
+              let coord = verts[c];
+              if (coord.x == vx && coord.y == vy) {
+                overlaps = true;
+              }
+            }
+
+            // if (
+            //   vx >= scenes[this.scene].colmap[0].length*8 ||
+            //   vy >= scenes[this.scene].colmap.length*8
+            // ) {
+            //   overlaps = true;
+            // }
+
+            if (!overlaps) verts.push({ x:vx, y:vy })
+          }
+        }
       }
     }
+
+    this.animation.vertices = verts;
+
+    // sort vertices by angle
+    let px = this.position.x+4;
+    let py = this.position.y+4;
+
+    for (let i in verts) {
+      let c = verts[i];
+
+      // change vertices that are behind a wall
+      let ray = this.rayBlocked(
+            {x:px, y:py},
+            {x:c.x, y:c.y}
+          );
+
+      if (ray) {
+        c.x = ray.x;
+        c.y = ray.y;
+      }
+
+      c.angle = Math.atan2(c.y-py, c.x-px);
+    }
+
+    verts = verts.sort((a, b) => a.angle - b.angle);
+
+    this.animation.vertices = verts;
+
+    // cast triangles
+    var triangles = [];
+
+    for (let i in verts) {
+      let c = verts[i];
+      let nc;
+
+      if (parseInt(i)+1 > verts.length-1) {
+        nc = verts[0];
+      } else {
+        nc = verts[parseInt(i)+1];
+      }
+
+      triangles.push({
+        a: { x: px, y: py },
+        b: { x: c.x, y: c.y },
+        c: { x: nc.x, y: nc.y }
+      });
+    };
+
+    this.animation.triangles = triangles;
+
+    // check if point in the center of tile is within triangle
+    let isdud = [];
+    for (let y in colmap) {
+      isdud[y] = [];
+      for (let x in colmap[y]) {
+
+        let tx = parseInt(x)*8 + 4;
+        let ty = parseInt(y)*8 + 4;
+
+        isdud[y][x] = true;
+
+        // if triangle intersects with tile, tile is false
+
+        triangle: for (let t in triangles) {
+          let tr = triangles[t];
+          
+          if (pointInTriangle({x: tx, y: ty}, tr.a, tr.b, tr.c)) {
+            isdud[y][x] = false;
+            break triangle;
+          }
+        }
+
+      }
+    }
+
+    this.animation.duds = isdud;
   }
 
-  hardLight() {
+  rayBlocked(a, b) {
+    // draw a line segment starting at a and ending at b
+    // get the first point where the line segment intersects a wall
+    // if the point is equal to b, then return false
+    // else : true
+
+    for (let y in scenes[this.scene].colmap) {
+      for (let x in scenes[this.scene].colmap[y]) {
+        if (scenes[this.scene].colmap[y][x] != "wall") continue;
+
+        let cx = parseInt(x)*8;
+        let cy = parseInt(y)*8;
+
+        // If -h/2 <= s * w/2 <= h/2 then the line intersects:
+        // The right edge if Ax > Bx
+        // The left edge if Ax < Bx.
+        // If -w/2 <= (h/2)/s <= w/2 then the line intersects:
+        // The top edge if Ay > By
+        // The bottom edge if Ay < By.
+
+        let lb = liangBarsky(a.x, a.y, b.x, b.y, [cx, cx+8, cy, cy+8]);
+
+        if (lb) {
+          return { x: lb[1][0], y: lb[1][1] }
+        }
+
+      }
+    }
+
+    return false
+  }
+
+  light() {
     let array = circle(Config.softLightRadius);
     let map = scenes[this.scene].shadowmap;
+    let isdud = this.animation.duds;
 
+    let px = Math.round(this.position.x/8);
+    let py = Math.round(this.position.y/8);
+
+    // light tiles
     for (let c in array) {
       let coord = array[c];
-      let x = this.position.x/8 + array[c][0];
-      let y = this.position.y/8 + array[c][1];
+      let x = px + array[c][0];
+      let y = py + array[c][1];
 
       if (
         x >= 0 && x < map[0].length &&
         y >= 0 && y < map.length
       ) {
-        map[y][x] = 0.5;
+        if (!isdud[y][x])
+          map[y][x] = 0.5;
+      }
+    }
+
+    array = circle(Config.softLightRadius-1);
+
+    for (let c in array) {
+      let coord = array[c];
+      let x = px + array[c][0];
+      let y = py + array[c][1];
+
+      if (
+        x >= 0 && x < map[0].length &&
+        y >= 0 && y < map.length
+      ) {
+        if (!isdud[y][x])
+          map[y][x] = 0.75;
       }
     }
 
@@ -100,20 +255,21 @@ class alien {
 
     for (let c in array) {
       let coord = array[c];
-      let x = this.position.x/8 + array[c][0];
-      let y = this.position.y/8 + array[c][1];
+      let x = px + array[c][0];
+      let y = py + array[c][1];
 
       if (
         x >= 0 && x < map[0].length &&
         y >= 0 && y < map.length
       ) {
-        map[y][x] = 1;
+        if (!isdud[y][x])
+          map[y][x] = 1;
       }
     }
   }
 
   update() {
-    if (this.type=="player") this.hardLight();
+    if (this.type=="player") this.light();
 
     if (this.animation.time >= 0.5) {
       if (this.buffer[0][1] == 0) {
@@ -148,6 +304,8 @@ class alien {
       };
       this.buffer.shift();
       this.animation.time = 0;
+
+      if (this.type=="player") this.findDuds();
     }
 
     this.colignore = null;

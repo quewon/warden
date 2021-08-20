@@ -103,7 +103,7 @@ class scene {
     for (let y in this.shadowmap) {
       for (let x in this.shadowmap[y]) {
         let l = this.shadowmap[y][x];
-        l -= 0.0025;
+        l -= 0.025;
         if (l < 0) l = 0;
         this.shadowmap[y][x] = l;
       }
@@ -111,13 +111,34 @@ class scene {
 
     // draw shadows
 
+    _e.globalCompositeOperation = "screen";
+
     for (let y in this.shadowmap) {
       for (let x in this.shadowmap[y]) {
-        let opacity = (Math.round((1-this.shadowmap[y][x])*2)/2).toFixed(1);
-        setColor(_c, 52, opacity);
+        let opacity = (Math.round((1-this.shadowmap[y][x])*4)/4).toFixed(1);
+        setColor(_c, 52, opacity - 0.05);
         _c.fillRect(x*8, y*8, 8, 8);
       }
     }
+
+    // for (let i in player.animation.triangles) {
+    //   let triangle = player.animation.triangles[i];
+    //   _c.fillStyle = "rgba(255,255,255,0.5)";
+    //   _c.beginPath();
+    //   _c.moveTo(triangle.a.x, triangle.a.y);
+    //   _c.lineTo(triangle.b.x, triangle.b.y);
+    //   _c.lineTo(triangle.c.x, triangle.c.y);
+    //   _c.closePath();
+    //   _c.fill();
+    // }
+
+    _e.globalCompositeOperation = "source-over";
+
+    // for (let i in player.animation.vertices) {
+    //   let v = player.animation.vertices[i];
+    //   _c.fillStyle = "rgba(0,255,0,0.5)";
+    //   _c.fillRect(v.x, v.y, 1, 1);
+    // }
   }
 
   step() {

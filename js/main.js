@@ -1,5 +1,5 @@
-var _canvas, _extra;
-var _c, _e; // canvas, extra canvas (used for generating/editing images)
+var _canvas, _extra, _debug;
+var _c, _e, _d;
 
 var player;
 var scenes;
@@ -103,13 +103,19 @@ function init() {
 
   _canvas = document.getElementById("canvas");
   _extra = document.getElementById("extra");
+  _debug = document.getElementById("debug");
   _c = _canvas.getContext("2d");
   _e = _extra.getContext("2d");
+  _d = _debug.getContext("2d");
 
   _canvas.width = Config.viewportWidth * 8;
   _canvas.height = Config.viewportHeight * 8;
   _canvas.style.width = _canvas.width * Config.viewportScale + "px";
   _canvas.style.height = _canvas.height * Config.viewportScale + "px";
+  _debug.width = Config.viewportWidth * 8;
+  _debug.height = Config.viewportHeight * 8;
+  _debug.style.width = _canvas.width * Config.viewportScale + "px";
+  _debug.style.height = _canvas.height * Config.viewportScale + "px";
 
   _c.imageSmoothingEnabled = Config.imageSmoothingEnabled;
 
@@ -281,4 +287,46 @@ function circle(r) {
   }
 
   return arr
+}
+
+function pointInTriangle(p, p0, p1, p2) {
+  var A = 1/2 * (-p1.y * p2.x + p0.y * (-p1.x + p2.x) + p0.x * (p1.y - p2.y) + p1.x * p2.y);
+  var sign = A < 0 ? -1 : 1;
+  var s = (p0.y * p2.x - p0.x * p2.y + (p2.y - p0.y) * p.x + (p0.x - p2.x) * p.y) * sign;
+  var t = (p0.x * p1.y - p0.y * p1.x + (p0.y - p1.y) * p.x + (p1.x - p0.x) * p.y) * sign;
+  
+  return s >= 0 && t >= 0 && (s + t) < 2 * A * sign;
+}
+
+// function that returns line intersecting with box
+//https://gist.github.com/w8r/7b701519a7c5b4840bec4609ceab3171
+function liangBarsky (x0, y0, x1, y1, bbox) {
+  var [xmin, xmax, ymin, ymax] = bbox;
+  var t0 = 0, t1 = 1;
+  var dx = x1 - x0, dy = y1 - y0;
+  var p, q, r;
+
+  for(var edge = 0; edge < 4; edge++) {   // Traverse through left, right, bottom, top edges.
+    if (edge === 0) { p = -dx; q = -(xmin - x0); }
+    if (edge === 1) { p =  dx; q =  (xmax - x0); }
+    if (edge === 2) { p = -dy; q = -(ymin - y0); }
+    if (edge === 3) { p =  dy; q =  (ymax - y0); }
+
+    r = q / p;
+
+    if (p === 0 && q <= 0) return null;   // Don't draw line at all. (parallel line outside)
+
+    if(p < 0) {
+      if (r >= t1) return null;     // Don't draw line at all.
+      else if (r >= t0) t0 = r;     // Line is clipped!
+    } else if (p >= 0) {
+      if(r <= t0) return null;      // Don't draw line at all.
+      else if (r <= t1) t1 = r;     // Line is clipped!
+    }
+  }
+
+  return [
+    [x0 + t0 * dx, y0 + t0 * dy],
+    [x0 + t1 * dx, y0 + t1 * dy]
+  ];
 }
