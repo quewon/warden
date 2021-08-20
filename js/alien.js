@@ -73,8 +73,8 @@ class alien {
         if (colmap[y][x] != "wall") continue;
 
         var sx = 0, sy = 0;
-        // if (x==0) sx = 1;
-        // if (y==0) sy = 1;
+        if (x==0) sx = 1;
+        if (y==0) sy = 1;
 
         // check 4 corners
         for (let i=sy; i<2; i++) {
@@ -90,12 +90,12 @@ class alien {
               }
             }
 
-            // if (
-            //   vx >= scenes[this.scene].colmap[0].length*8 ||
-            //   vy >= scenes[this.scene].colmap.length*8
-            // ) {
-            //   overlaps = true;
-            // }
+            if (
+              vx >= scenes[this.scene].colmap[0].length*8 ||
+              vy >= scenes[this.scene].colmap.length*8
+            ) {
+              overlaps = true;
+            }
 
             if (!overlaps) verts.push({ x:vx, y:vy })
           }
@@ -156,18 +156,22 @@ class alien {
     let isdud = [];
     for (let y in colmap) {
       isdud[y] = [];
-      for (let x in colmap[y]) {
+      dudsearch: for (let x in colmap[y]) {
+        isdud[y][x] = true;
+
+        if (colmap[y][x] == "wall") {
+          isdud[y][x] = false;
+          continue;
+        }
 
         let tx = parseInt(x)*8 + 4;
         let ty = parseInt(y)*8 + 4;
-
-        isdud[y][x] = true;
 
         // if triangle intersects with tile, tile is false
 
         triangle: for (let t in triangles) {
           let tr = triangles[t];
-          
+
           if (pointInTriangle({x: tx, y: ty}, tr.a, tr.b, tr.c)) {
             isdud[y][x] = false;
             break triangle;
@@ -203,7 +207,7 @@ class alien {
         let lb = liangBarsky(a.x, a.y, b.x, b.y, [cx, cx+8, cy, cy+8]);
 
         if (lb) {
-          return { x: lb[1][0], y: lb[1][1] }
+          return { x: lb[0][0], y: lb[0][1] }
         }
 
       }
@@ -231,7 +235,7 @@ class alien {
         y >= 0 && y < map.length
       ) {
         if (!isdud[y][x])
-          map[y][x] = 0.5;
+          map[y][x] = 0.3;
       }
     }
 

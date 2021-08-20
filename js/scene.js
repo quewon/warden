@@ -116,7 +116,7 @@ class scene {
     for (let y in this.shadowmap) {
       for (let x in this.shadowmap[y]) {
         let opacity = (Math.round((1-this.shadowmap[y][x])*4)/4).toFixed(1);
-        setColor(_c, 52, opacity - 0.05);
+        setColor(_c, 52, opacity - 0.1);
         _c.fillRect(x*8, y*8, 8, 8);
       }
     }
