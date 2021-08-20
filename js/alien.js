@@ -173,6 +173,30 @@ class alien {
     let w = this.img.width;
     let h = this.img.height;
 
+    // walls
+
+    let colmap = scenes[this.scene].colmap;
+
+    for (let ty in this.colmap) {
+      for (let tx in this.colmap[ty]) {
+        let cy = y/8 + parseInt(ty);
+        let cx = x/8 + parseInt(tx);
+
+        if (
+          cy < 0 || cx < 0 ||
+          cy >= colmap.length || cx >= colmap[0].length
+          ) {
+          return ["wall"]
+        }
+
+        if (colmap[cy][cx] == "wall") {
+          return ["wall"]
+        }
+      }
+    }
+
+    // aliens
+
     let aliens = scenes[this.scene].aliens;
 
     let col = [];
@@ -377,19 +401,9 @@ function alienImage() {
           );
           break;
         case "body":
-          _e.fillStyle =
-            "rgba("+
-            Config.filter[20][0]+","+
-            Config.filter[20][1]+","+
-            Config.filter[20][2]+","+
-            "255)";
+          setColor(_e, 20, 1);
           _e.fillRect(x*8, y*8, 8, 8);
-          _e.fillStyle =
-            "rgba("+
-            Config.filter[235][0]+","+
-            Config.filter[235][1]+","+
-            Config.filter[235][2]+","+
-            "255)";
+          setColor(_e, 235, 1);
           _e.fillRect(x*8+1, y*8+1, 6, 6);
           break;
         case "leg":

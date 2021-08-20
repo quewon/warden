@@ -26,7 +26,10 @@ function load_imgs() {
     "parts/heads.png",
     "parts/legs.png",
     "parts/left shoulders.png",
-    "parts/horns.png"
+    "parts/horns.png",
+
+    "scenes/testscene.png",
+    "scenes/testscene_cm.png"
   ];
 
   imgs = {};
@@ -146,14 +149,10 @@ function init() {
 
   scenes = {};
   scenes.hub = new scene(bank.hub);
-
-  for (let i=0; i<5; i++) {
-    new alien({scene:"hub"})
-  }
-
   scenes.current = "hub";
 
   player = new alien(bank.player);
+  new alien({scene:"hub"})
 
   //
 
@@ -255,4 +254,16 @@ function lerp(start, end, t) {
 
 function playsound(name) {
   G.arrayRandom(sounds[name]).play();
+}
+
+function setColor(context, value, opacity) {
+  opacity = opacity || 1;
+
+  context.fillStyle =
+    "rgba("+
+    Config.filter[value][0]+","+
+    Config.filter[value][1]+","+
+    Config.filter[value][2]+","+
+    opacity
+    ")";
 }
