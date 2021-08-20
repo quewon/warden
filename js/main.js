@@ -268,3 +268,17 @@ function setColor(context, value, opacity) {
     opacity
     ")";
 }
+
+function circle(r) {
+  var arr = [];
+  
+  for (let x=-r; x<r; x++) {
+    let height = Math.sqrt(r * r - x * x);
+
+    for (let y =-height; y<height; y++) {
+      arr.push([x, Math.round(y)])
+    }
+  }
+
+  return arr
+}

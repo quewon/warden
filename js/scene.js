@@ -93,11 +93,30 @@ class scene {
       alien.update();
     }
 
-    // update shadowmap
-
     for (let a in this.aliens) {
       let alien = ref[this.aliens[a]];
       alien.draw();
+    }
+
+    // update shadowmap
+
+    for (let y in this.shadowmap) {
+      for (let x in this.shadowmap[y]) {
+        let l = this.shadowmap[y][x];
+        l -= 0.0025;
+        if (l < 0) l = 0;
+        this.shadowmap[y][x] = l;
+      }
+    }
+
+    // draw shadows
+
+    for (let y in this.shadowmap) {
+      for (let x in this.shadowmap[y]) {
+        let opacity = (Math.round((1-this.shadowmap[y][x])*2)/2).toFixed(1);
+        setColor(_c, 52, opacity);
+        _c.fillRect(x*8, y*8, 8, 8);
+      }
     }
   }
 

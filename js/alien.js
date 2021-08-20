@@ -54,19 +54,67 @@ class alien {
     }
 
     if (this.type=="player") {
-      if (this.buffer.length > 0) {
-        if (this.buffer[0][0] < 0) {
-          this.animation.flip = true;
-        } else if (this.buffer[0][0] > 0) {
-          this.animation.flip = false;
-        }
-      }
-
       playsound("step");
+
+      this.softLight();
+      this.hardLight();
+    }
+  }
+
+  softLight() {
+    let array = circle(Config.softLightRadius);
+    let map = scenes[this.scene].shadowmap;
+
+    for (let c in array) {
+      let coord = array[c];
+      let x = this.position.x/8 + array[c][0];
+      let y = this.position.y/8 + array[c][1];
+
+      if (
+        x >= 0 && x < map[0].length &&
+        y >= 0 && y < map.length
+      ) {
+        map[y][x] = 1;
+      }
+    }
+  }
+
+  hardLight() {
+    let array = circle(Config.softLightRadius);
+    let map = scenes[this.scene].shadowmap;
+
+    for (let c in array) {
+      let coord = array[c];
+      let x = this.position.x/8 + array[c][0];
+      let y = this.position.y/8 + array[c][1];
+
+      if (
+        x >= 0 && x < map[0].length &&
+        y >= 0 && y < map.length
+      ) {
+        map[y][x] = 0.5;
+      }
+    }
+
+    array = circle(Config.hardLightRadius);
+
+    for (let c in array) {
+      let coord = array[c];
+      let x = this.position.x/8 + array[c][0];
+      let y = this.position.y/8 + array[c][1];
+
+      if (
+        x >= 0 && x < map[0].length &&
+        y >= 0 && y < map.length
+      ) {
+        map[y][x] = 1;
+      }
     }
   }
 
   update() {
+    if (this.type=="player") this.hardLight();
+
     if (this.animation.time >= 0.5) {
       if (this.buffer[0][1] == 0) {
         this.squash();
@@ -158,6 +206,14 @@ class alien {
 
     let newx = Math.round(lerp(x, dx, t));
     let newy = Math.round(lerp(y, dy, t));
+
+    if (this.type=="player") {
+      if (input[0] < 0) {
+        this.animation.flip = true;
+      } else if (input[0] > 0) {
+        this.animation.flip = false;
+      }
+    }
 
     if (this.colliding(dx, dy, input, t).length == 0) {
       this.animation.position.x = newx;
