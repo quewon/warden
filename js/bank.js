@@ -8,6 +8,6 @@ var bank = {
     colmap: [[1]],
   },
   hub: {
-    aliens: []
+    name: "hub",
   }
 };

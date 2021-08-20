@@ -152,7 +152,8 @@ function init() {
   scenes.current = "hub";
 
   player = new alien(bank.player);
-  new alien({scene:"hub"})
+
+  scenes.hub.spawnAliens();
 
   //
 

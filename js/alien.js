@@ -401,9 +401,9 @@ function alienImage() {
           );
           break;
         case "body":
-          setColor(_e, 20, 1);
+          setColor(_e, 94, 1);
           _e.fillRect(x*8, y*8, 8, 8);
-          setColor(_e, 235, 1);
+          setColor(_e, 237, 1);
           _e.fillRect(x*8+1, y*8+1, 6, 6);
           break;
         case "leg":
@@ -499,9 +499,9 @@ function alienImage() {
             let downright = i + imgdata.width*4 + 4;
 
             if (
-              data[i] == Config.filter[20][0] &&
-              data[i+1] == Config.filter[20][1] &&
-              data[i+2] == Config.filter[20][2] &&
+              data[i] == Config.filter[94][0] &&
+              data[i+1] == Config.filter[94][1] &&
+              data[i+2] == Config.filter[94][2] &&
 
               (
                 data[down+3] != 0 &&
@@ -514,9 +514,9 @@ function alienImage() {
                 data[downright+3] != 0
               )
             ) {
-              data[i] = Config.filter[235][0];
-              data[i+1] = Config.filter[235][1];
-              data[i+2] = Config.filter[235][2];
+              data[i] = Config.filter[237][0];
+              data[i+1] = Config.filter[237][1];
+              data[i+2] = Config.filter[237][2];
             }
           }
           _e.putImageData(imgdata, x*8-1, y*8-2);
@@ -540,9 +540,9 @@ function alienImage() {
             let downright = i + imgdata.width*4 + 4;
 
             if (
-              data[i] == Config.filter[20][0] &&
-              data[i+1] == Config.filter[20][1] &&
-              data[i+2] == Config.filter[20][2] &&
+              data[i] == Config.filter[94][0] &&
+              data[i+1] == Config.filter[94][1] &&
+              data[i+2] == Config.filter[94][2] &&
 
               (
                 data[down+3] != 0 &&
@@ -555,9 +555,9 @@ function alienImage() {
                 data[downright+3] != 0
               )
             ) {
-              data[i] = Config.filter[235][0];
-              data[i+1] = Config.filter[235][1];
-              data[i+2] = Config.filter[235][2];
+              data[i] = Config.filter[237][0];
+              data[i+1] = Config.filter[237][1];
+              data[i+2] = Config.filter[237][2];
             }
           }
           _e.putImageData(imgdata, x*8+6, y*8-1);
