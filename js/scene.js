@@ -72,40 +72,119 @@ class scene {
 
     // find wall vertices
 
-    let verts = [];
+    // first, get the edges of walls in lines
+    let lines = [];
+    let overlaps = function(l) {
+      for (let i in lines) {
+        let line = lines[i];
+
+        if (
+          line.a.x == l.a.x &&
+          line.a.y == l.a.y &&
+          line.b.x == l.b.x &&
+          line.b.y == l.b.y
+        ) {
+          return true
+        }
+      }
+      return false
+    };
+    let lineAngle = function(cx, cy, ex, ey) {
+      var dy = ey - cy;
+      var dx = ex - cx;
+      var theta = Math.atan2(dy, dx);
+      theta *= 180 / Math.PI;
+      return theta;
+    };
     for (let y=0; y<this.colmap.length; y++) {
       for (let x=0; x<this.colmap[y].length; x++) {
         if (this.colmap[y][x] != "wall") continue;
 
-        var sx = 0, sy = 0;
-        if (x==0) sx = 1;
-        if (y==0) sy = 1;
+        let tx = x*8;
+        let ty = y*8;
 
-        // check 4 corners
-        for (let i=sy; i<2; i++) {
-          for (let ii=sx; ii<2; ii++) {
-            let vx = (x + ii) * 8;
-            let vy = (y + i) * 8;
+        let line;
 
-            let overlaps = false;
-            for (let c in verts) {
-              let coord = verts[c];
-              if (coord.x == vx && coord.y == vy) {
-                overlaps = true;
-              }
-            }
-
-            if (
-              vx >= this.colmap[0].length*8 ||
-              vy >= this.colmap.length*8
-            ) {
-              overlaps = true;
-            }
-
-            if (!overlaps) verts.push({ x:vx, y:vy })
-          }
+        // 4 lines
+        // top
+        if (y > 0 && this.colmap[y-1][x] != "wall") {
+          line = {
+            a: { x: tx, y: ty },
+            b: { x: tx+8, y: ty },
+            angle: lineAngle(tx, ty, tx+8, ty)
+          };
+          if (!overlaps(line)) lines.push(line);
+        }
+        // right
+        if (x+1 < this.colmap[y].length && this.colmap[y][x+1] != "wall") {
+          line = {
+            a: { x: tx+8, y: ty },
+            b: { x: tx+8, y: ty+8 },
+            angle: lineAngle(tx+8, ty, tx+8, ty+8)
+          };
+          if (!overlaps(line)) lines.push(line);
+        }
+        // bottom
+        if (
+          x+1 < this.colmap[y].length &&
+          y+1 < this.colmap.length &&
+          this.colmap[y+1][x] != "wall"
+        ) {
+          line = {
+            a: { x: tx, y: ty+8 },
+            b: { x: tx+8, y: ty+8 },
+            angle: lineAngle(tx, ty+8, tx+8, ty+8)
+          };
+          if (!overlaps(line)) lines.push(line);
+        }
+        // left
+        if (x > 0 && this.colmap[y][x-1] != "wall") {
+          line = {
+            a: { x: tx, y: ty },
+            b: { x: tx, y: ty+8 },
+            angle: lineAngle(tx, ty, tx, ty+8)
+          };
+          if (!overlaps(line)) lines.push(line);
         }
       }
+    }
+
+    // second, consolidate lines that connect and have the same angle
+    for (let i=lines.length-1; i>0; i--) {
+      let l = lines[i];
+      for (let x in lines) {
+        let n = lines[x];
+
+        if (
+          l.a.x == n.b.x &&
+          l.a.y == n.b.y &&
+          l.angle == n.angle
+        ) {
+          n.b = { x: l.b.x, y: l.b.y };
+          lines.splice(i, 1);
+        } 
+      }
+    }
+
+    this.lines = lines;
+
+    // lastly, generate vertices from the lines!
+    let verts = [];
+    overlaps = function(v) {
+      for (let i in verts) {
+        let n = verts[i];
+        if (v.x == n.x && v.y == n.y) {
+          return true
+        }
+        return false
+      }
+    };
+    for (let i in lines) {
+      let l = lines[i];
+      let v = { x: l.a.x, y: l.a.y };
+      if (!overlaps(v)) verts.push(v);
+      v = { x: l.b.x, y: l.b.y };
+      if (!overlaps(v)) verts.push(v);
     }
 
     this.vertices = verts;
@@ -212,6 +291,17 @@ class scene {
     //   let v = this.vertices[i];
     //   _c.fillStyle = "rgba(0,255,0,0.5)";
     //   _c.fillRect(v.x-vx, v.y-vy, 1, 1);
+    // }
+
+    // for (let i in this.lines) {
+    //   let line = this.lines[i];
+    //   _c.lineWidth = 1;
+    //   _c.strokeStyle = "rgba(0,255,0,0.5)";
+    //   _c.beginPath();
+    //   _c.moveTo(line.a.x-vx, line.a.y-vy);
+    //   _c.lineTo(line.b.x-vx, line.b.y-vy);
+    //   _c.closePath();
+    //   _c.stroke();
     // }
   }
 

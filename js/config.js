@@ -40,7 +40,7 @@ var Config = {
     "alienspawn": [0, 0, 255],
   },
 
-  viewportWidth: 16,
-  viewportHeight: 16,
+  viewportWidth: 20,
+  viewportHeight: 20,
   viewportScale: 4,
 }

@@ -10,7 +10,7 @@ class alien {
     } else {
       this.img = alienImage();
     }
-    this.type = p.type || "rando";
+    this.type = p.type || "wanderer";
 
     this.state = "idle";
     this.moveScene(p.scene || "hub");
@@ -68,7 +68,7 @@ class alien {
       case "player":
         break;
 
-      case "rando":
+      case "wanderer":
         let move = [0, 0];
 
         for (let i in scenes[this.scene].aliens) {
