@@ -3,6 +3,7 @@ class scene {
     this.name = p.name;
     this.aliens = p.aliens || [];
     this.static = p.static || [];
+    this.camera = {};
     this.init(p.src || "testscene");
   }
 
@@ -188,6 +189,16 @@ class scene {
     }
 
     this.vertices = verts;
+
+    // camera things
+
+    let cm = this.colmap;
+    let vpwidth = cm[0].length < Config.viewportWidth ? cm[0].length : Config.viewportWidth;
+    let vpheight = cm.length < Config.viewportHeight ? cm.length : Config.viewportHeight;
+    this.camera.dx = Math.round((Config.viewportWidth - vpwidth)/2)*8;
+    this.camera.dy = Math.round((Config.viewportHeight - vpheight)/2)*8;
+    this.camera.width = vpwidth*8;
+    this.camera.height = vpheight*8;
   }
 
   spawnAliens() {
@@ -210,20 +221,43 @@ class scene {
   draw() {
     // camera
     let camera = player.animation.camera;
+    let dx = this.camera.dx;
+    let dy = this.camera.dy;
     let vx = camera.x;
     let vy = camera.y;
-    let vw = camera.width;
-    let vh = camera.height;
+    let vw = this.camera.width;
+    let vh = this.camera.height;
     let vmx = camera.mx;
     let vmy = camera.my;
 
     setColor(_c, 175);
-    _c.fillRect(0, 0, vw, vh);
-    _c.drawImage(this.img, vx, vy, vw, vh, 0, 0, vw, vh);
+    _c.fillRect(dx, dy, vw, vh);
+    _c.drawImage(this.img, vx, vy, vw, vh, dx, dy, vw, vh);
 
     for (let a in this.aliens) {
       let alien = ref[this.aliens[a]];
       alien.update();
+    }
+
+    // highlight interactable
+
+    if (player.interactable) {
+      let alien = ref[player.interactable.id];
+      let a = alien.animation.position;
+
+      for (let y=0; y<alien.colmap.length; y++) {
+        for (let x=0; x<alien.colmap[y].length; x++) {
+          if (alien.colmap[y][x] == 0) continue;
+
+          setColor(_c, G.arrayRandom([237,226,201]));
+          _c.fillRect(
+            a.x-1-vx+dx + x*8,
+            a.y-1-vy+dy + y*8,
+            10,
+            10
+          );
+        }
+      }
     }
 
     for (let a in this.aliens) {
@@ -238,7 +272,7 @@ class scene {
       ) {
         continue;
       }
-      alien.draw(vx, vy);
+      alien.draw(vx-dx, vy-dy);
     }
 
     // update shadowmap
@@ -268,7 +302,7 @@ class scene {
         let opacity = (Math.round((1-this.shadowmap[y][x])*4)/4).toFixed(1);
         opacity -= Config.ambientLight;
         setColor(_c, 52, opacity);
-        _c.fillRect(x*8-vx, y*8-vy, 8, 8);
+        _c.fillRect(x*8-vx+dx, y*8-vy+dy, 8, 8);
       }
     }
 

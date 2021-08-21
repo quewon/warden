@@ -7,7 +7,7 @@ var alienParts;
 
 load();
 
-var clock;
+// var clock;
 var imgs, sounds;
 
 var ref = [];
@@ -182,11 +182,11 @@ function animate() {
 }
 
 function update() {
-  clock.now = Date.now();
-  clock.delta = clock.now - clock.prev;
-  clock.prev = clock.now;
+  // clock.now = Date.now();
+  // clock.delta = clock.now - clock.prev;
+  // clock.prev = clock.now;
 
-  Controls.key.update(clock.delta);
+  Controls.key.update();
 }
 
 //

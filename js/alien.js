@@ -32,7 +32,8 @@ class alien {
     }
 
     this.reach = 1;
-    this.interactable = [];
+    this.interactable = null;
+    this.dragging = null;
 
     ref.push(this);
   }
@@ -103,8 +104,6 @@ class alien {
 
   endStep() {
     if (this.type=="player") this.findDuds();
-
-    // this.interactable;
   }
 
   // lighting
@@ -310,14 +309,15 @@ class alien {
   // drawing
 
   getCamera() {
+    let camera = scenes[this.scene].camera;
     let vx=0;
     let vy=0;
     let x = this.animation.position.x;
     let y = this.animation.position.y;
-    let vw = Config.viewportWidth*8;
-    let vh = Config.viewportHeight*8;
-    let vwh = Config.viewportWidth*4;
-    let vhh = Config.viewportHeight*4;
+    let vw = camera.width;
+    let vh = camera.height;
+    let vwh = camera.width/2;
+    let vhh = camera.height/2;
     let sw = scenes[this.scene].colmap[0].length*8;
     let sh = scenes[this.scene].colmap.length*8;
     if (x >= sw-vwh) {
@@ -334,8 +334,6 @@ class alien {
     this.animation.camera = {
       x: vx,
       y: vy,
-      width: vw,
-      height: vh,
       mx: vx+vw,
       my: vy+vh
     };
@@ -391,6 +389,7 @@ class alien {
       this.endStep();
     }
 
+    this.findInteractable();
     this.colignore = null;
   }
 
@@ -461,7 +460,22 @@ class alien {
       }
     }
 
-    if (this.colliding(dx, dy, input, t).length == 0) {
+    let stuck = false;
+
+    if (this.dragging) {
+      let alien = ref[this.dragging];
+      let nudge = alien.nudge(input, t);
+      if (!nudge) {
+        stuck = true;
+        alien.animation.time = t;
+      } else {
+        alien.buffer.shift;
+      }
+
+      console.log("dragged "+alien.id);
+    }
+
+    if (this.colliding(dx, dy, input, t).length == 0 && !stuck) {
       this.animation.position.x = newx;
       this.animation.position.y = newy;
 
@@ -607,8 +621,34 @@ class alien {
 
   // interaction
 
-  interact() {
+  findInteractable() {
+    this.interactable = null;
+    this.dragging = null;
 
+    search: for (let y=-1*this.reach; y<=this.reach; y++) {
+      let sx = y==-1*this.reach || y==this.reach ? 1 : 0;
+      let smx = y==-1*this.reach || y==this.reach ? 1 : 0;
+      for (let x=-1*this.reach+sx; x<=this.reach-smx; x++) {
+        let cols = this.colliding(this.position.x+x*8, this.position.y+y*8);
+        if (cols.length > 0) {
+          if (cols[0] == "wall") continue;
+          this.interactable = cols[0];
+          break search;
+        }
+      }
+    }
+  }
+
+  drag() {
+    if (this.interactable == null) return;
+
+    this.dragging = this.interactable.id;
+  }
+
+  interact() {
+    if (this.interactable == null) return;
+
+    console.log("interacted with "+this.interactable.id);
   }
 }
 
