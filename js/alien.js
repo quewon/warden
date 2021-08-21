@@ -22,8 +22,7 @@ class alien {
       flip: false,
       time: 0,
       distortion: [0, 0],
-      duds: [],
-      direction: [0, 0],
+      duds: []
     };
     this.buffer = [];
     this.speed = 0.06;
@@ -31,6 +30,9 @@ class alien {
       this.getCamera();
       this.findDuds();
     }
+
+    this.reach = 1;
+    this.interactable = [];
 
     ref.push(this);
   }
@@ -53,6 +55,13 @@ class alien {
     this.animation.position = { x:x, y:y };
   }
 
+  moveScene(s) {
+    scenes[s].aliens.push(this.id);
+    this.scene = s;
+  }
+
+  // turn/step/move
+
   step() {
     switch (this.type) {
 
@@ -60,6 +69,29 @@ class alien {
         break;
 
       case "rando":
+        let move = [0, 0];
+
+        for (let i in scenes[this.scene].aliens) {
+          switch (Math.random() * 4 | 0) {
+            case 0:
+              move = [0, 1];
+              break;
+            case 1:
+              move = [0, -1];
+              break;
+            case 2:
+              move = [1, 0];
+              break;
+            case 3:
+              move = [-1, 0];
+              break;
+          }
+        }
+
+        if (this.colliding(this.position.x+move[0]*8, this.position.y+move[1]*8).length == 0) {
+          this.move(move[0], move[1]);
+        }
+
         break;
 
     }
@@ -69,50 +101,26 @@ class alien {
     }
   }
 
+  endStep() {
+    if (this.type=="player") this.findDuds();
+
+    // this.interactable;
+  }
+
   // lighting
 
   findDuds() {
     let colmap = scenes[this.scene].colmap;
-
-    // get corners of walls & aliens
     let verts = [];
 
-    for (let y=0; y<colmap.length; y++) {
-      for (let x=0; x<colmap[y].length; x++) {
-        if (colmap[y][x] != "wall") continue;
-
-        var sx = 0, sy = 0;
-        if (x==0) sx = 1;
-        if (y==0) sy = 1;
-
-        // check 4 corners
-        for (let i=sy; i<2; i++) {
-          for (let ii=sx; ii<2; ii++) {
-            let vx = (x + ii) * 8;
-            let vy = (y + i) * 8;
-
-            let overlaps = false;
-            for (let c in verts) {
-              let coord = verts[c];
-              if (coord.x == vx && coord.y == vy) {
-                overlaps = true;
-              }
-            }
-
-            if (
-              vx >= scenes[this.scene].colmap[0].length*8 ||
-              vy >= scenes[this.scene].colmap.length*8
-            ) {
-              overlaps = true;
-            }
-
-            if (!overlaps) verts.push({ x:vx, y:vy })
-          }
-        }
-      }
+    // copy vertices
+    for (let i in scenes[this.scene].vertices) {
+      let v = scenes[this.scene].vertices[i];
+      verts.push({
+        x: v.x,
+        y: v.y
+      })
     }
-
-    // clear unnecessary vertices
 
     // sort vertices by angle
     let px = this.position.x+4;
@@ -136,8 +144,6 @@ class alien {
     }
 
     verts = verts.sort((a, b) => a.angle - b.angle);
-
-    this.animation.vertices = verts;
 
     // cast triangles
     var triangles = [];
@@ -301,6 +307,8 @@ class alien {
     }
   }
 
+  // drawing
+
   getCamera() {
     let vx=0;
     let vy=0;
@@ -339,7 +347,7 @@ class alien {
       this.getCamera();
     }
 
-    if (this.animation.time >= 0.5) {
+    if (this.animation.time >= 0.5 && this.buffer.length > 0) {
       if (this.buffer[0][1] == 0) {
         this.squash();
       } else {
@@ -373,7 +381,7 @@ class alien {
       this.buffer.shift();
       this.animation.time = 0;
 
-      if (this.type=="player") this.findDuds();
+      this.endStep();
     }
 
     this.colignore = null;
@@ -415,6 +423,8 @@ class alien {
     });
   }
 
+  // movement
+
   move(x, y) {
 
     if (this.buffer.length == 0) {
@@ -444,8 +454,6 @@ class alien {
       }
     }
 
-    this.animation.direction = input;
-
     if (this.colliding(dx, dy, input, t).length == 0) {
       this.animation.position.x = newx;
       this.animation.position.y = newy;
@@ -455,6 +463,8 @@ class alien {
       return false
     }
   }
+
+  // collision
 
   colliding(x, y, input, t) {
     let w = this.img.width;
@@ -505,6 +515,23 @@ class alien {
         y + h > ay
       ) {
         col.push(alien);
+
+      } else if (
+        input && 
+        alien.animation.time != 0 &&
+        alien.buffer.length > 0
+      ) {
+        let adx = ax+alien.buffer[0][0]*8;
+        let ady = ay+alien.buffer[0][1]*8;
+
+        if (
+          x < adx + aw &&
+          x + w > adx &&
+          y < ady + ah &&
+          y + h > ady
+        ) {
+          col.push(alien)
+        }
       }
     }
 
@@ -543,6 +570,22 @@ class alien {
                   allcols.push(alien);
                   break colmapsearch
                 }
+              } else if ( //alien is moving
+                alien.animation.time != 0 &&
+                alien.buffer.length > 0 &&
+                input && t
+              ) {
+                let adx = apx+alien.buffer[0][0]*8;
+                let ady = apy+alien.buffer[0][1]*8;
+
+                if ( // headed to the same tile
+                  x + (tx*8) == adx + (ax*8) &&
+                  y + (ty*8) == apy + (ay*8)
+                ) {
+                  this.setPosition(this.position.x, this.position.y);
+                  allcols.push(alien);
+                  break colmapsearch
+                }
               }
             }
           }
@@ -555,9 +598,10 @@ class alien {
     return allcols
   }
 
-  moveScene(s) {
-    scenes[s].aliens.push(this.id);
-    this.scene = s;
+  // interaction
+
+  interact() {
+
   }
 }
 

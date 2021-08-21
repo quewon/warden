@@ -69,6 +69,46 @@ class scene {
 
       }
     }
+
+    // find wall vertices
+
+    let verts = [];
+    for (let y=0; y<this.colmap.length; y++) {
+      for (let x=0; x<this.colmap[y].length; x++) {
+        if (this.colmap[y][x] != "wall") continue;
+
+        var sx = 0, sy = 0;
+        if (x==0) sx = 1;
+        if (y==0) sy = 1;
+
+        // check 4 corners
+        for (let i=sy; i<2; i++) {
+          for (let ii=sx; ii<2; ii++) {
+            let vx = (x + ii) * 8;
+            let vy = (y + i) * 8;
+
+            let overlaps = false;
+            for (let c in verts) {
+              let coord = verts[c];
+              if (coord.x == vx && coord.y == vy) {
+                overlaps = true;
+              }
+            }
+
+            if (
+              vx >= this.colmap[0].length*8 ||
+              vy >= this.colmap.length*8
+            ) {
+              overlaps = true;
+            }
+
+            if (!overlaps) verts.push({ x:vx, y:vy })
+          }
+        }
+      }
+    }
+
+    this.vertices = verts;
   }
 
   spawnAliens() {
@@ -168,11 +208,11 @@ class scene {
     //   _c.fill();
     // }
 
-    for (let i in player.animation.vertices) {
-      let v = player.animation.vertices[i];
-      _c.fillStyle = "rgba(0,255,0,0.5)";
-      _c.fillRect(v.x-vx, v.y-vy, 1, 1);
-    }
+    // for (let i in this.vertices) {
+    //   let v = this.vertices[i];
+    //   _c.fillStyle = "rgba(0,255,0,0.5)";
+    //   _c.fillRect(v.x-vx, v.y-vy, 1, 1);
+    // }
   }
 
   step() {

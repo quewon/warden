@@ -3,7 +3,8 @@ var Config = {
     up: "ArrowUp",
     down: "ArrowDown",
     left: "ArrowLeft",
-    right: "ArrowRight"
+    right: "ArrowRight",
+    interact: " "
   },
 
   bg: "#397485",
@@ -30,7 +31,7 @@ var Config = {
   },
   hardLightRadius: 3,
   softLightRadius: 6,
-  ambientLight: 0.2, //max: 0.99, min: 0.001 | 0.2, 0.6
+  ambientLight: 0.99, //max: 0.99, min: 0.001 | 0.2, 0.6
   imageSmoothingEnabled: false,
 
   colKey: {
