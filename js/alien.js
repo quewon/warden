@@ -190,26 +190,34 @@ class alien {
     // if the point is equal to b, then return false
     // else : true
 
-    for (let y in scenes[this.scene].colmap) {
-      for (let x in scenes[this.scene].colmap[y]) {
-        if (scenes[this.scene].colmap[y][x] != "wall") continue;
+    // go through walls in order of how far away it is from a
 
-        let cx = parseInt(x)*8;
-        let cy = parseInt(y)*8;
+    let colmap = scenes[this.scene].colmap;
+    let distanced = [];
 
-        // If -h/2 <= s * w/2 <= h/2 then the line intersects:
-        // The right edge if Ax > Bx
-        // The left edge if Ax < Bx.
-        // If -w/2 <= (h/2)/s <= w/2 then the line intersects:
-        // The top edge if Ay > By
-        // The bottom edge if Ay < By.
+    for (let y=0; y<colmap.length; y++) {
+      for (let x=0; x<colmap[y].length; x++) {
+        if (colmap[y][x] != "wall") continue;
 
-        let lb = liangBarsky(a.x, a.y, b.x, b.y, [cx, cx+8, cy, cy+8]);
+        distanced.push({
+          x: x*8,
+          y: y*8,
+          dist: Math.sqrt(Math.pow(a.x-x*8,2), Math.pow(a.y-y*8,2)),
+        });
+      }
+    }
 
-        if (lb) {
-          return { x: lb[0][0], y: lb[0][1] }
-        }
+    distanced = distanced.sort((a,b) => a.dist - b.dist);
 
+    for (let i in distanced) {
+      let d = distanced[i];
+      let cx = d.x;
+      let cy = d.y;
+
+      let lb = liangBarsky(a.x, a.y, b.x, b.y, [cx, cx+8, cy, cy+8]);
+
+      if (lb) {
+        return { x: lb[0][0], y: lb[0][1] }
       }
     }
 
