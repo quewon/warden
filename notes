@@ -43,6 +43,3 @@ everything on a grid
 [ ] ships
 
 [ ] ray collision is leaky
-[ ] remove unnecessary vertices by turning them into lines
-  [ ] save vertices
-  [ ] aliens block light too
