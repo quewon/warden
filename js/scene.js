@@ -1,10 +1,8 @@
 class scene {
   constructor(p) {
+    this.name = p.name;
     this.aliens = p.aliens || [];
     this.static = p.static || [];
-    this.width = Config.viewportWidth;
-    this.height = Config.viewportHeight;
-
     this.init(p.src || "testscene");
   }
 
@@ -76,17 +74,33 @@ class scene {
   spawnAliens() {
     for (let c in this.alienspawns) {
       let coord = this.alienspawns[c];
-      new alien({
+      let a = new alien({
         scene: this.name,
-        position: { x: coord[0], y: coord[1] }
       });
+      let newx = coord[0] + 1.5*8 - a.colmap[0].length*4;
+      let newy = coord[1] + 1.5*8 - a.colmap.length*4;
+      let rx = newx >= this.colmap[0].length ? "ceil" : "floor";
+      let ry = newy >= this.colmap.length ? "ceil" : "floor";
+      a.setPosition(
+        Math[rx]((newx)/8)*8,
+        Math[ry]((newy)/8)*8
+      );
     }
   }
 
   draw() {
+    // camera
+    let camera = player.animation.camera;
+    let vx = camera.x;
+    let vy = camera.y;
+    let vw = camera.width;
+    let vh = camera.height;
+    let vmx = camera.mx;
+    let vmy = camera.my;
+
     setColor(_c, 175);
-    _c.fillRect(0, 0, _canvas.width, _canvas.height);
-    _c.drawImage(this.img, 0, 0);
+    _c.fillRect(0, 0, vw, vh);
+    _c.drawImage(this.img, vx, vy, vw, vh, 0, 0, vw, vh);
 
     for (let a in this.aliens) {
       let alien = ref[this.aliens[a]];
@@ -95,7 +109,17 @@ class scene {
 
     for (let a in this.aliens) {
       let alien = ref[this.aliens[a]];
-      alien.draw();
+      let x = alien.position.x;
+      let y = alien.position.y;
+      let w = alien.colmap[0].length*8;
+      let h = alien.colmap.length*8;
+      if (
+        (x > vmx || x+w < vx) &&
+        (y > vmy || y+h < vy)
+      ) {
+        continue;
+      }
+      alien.draw(vx, vy);
     }
 
     // update shadowmap
@@ -113,32 +137,42 @@ class scene {
 
     _e.globalCompositeOperation = "screen";
 
-    for (let y in this.shadowmap) {
-      for (let x in this.shadowmap[y]) {
+    for (let y=0; y<this.shadowmap.length; y++) {
+      for (let x=0; x<this.shadowmap[y].length; x++) {
+        if (
+          (x*8 > vmx || x*8+8 < vx) &&
+          (y*8 > vmy || y*8+8 < vy)
+        ) {
+          continue;
+        }
+
         let opacity = (Math.round((1-this.shadowmap[y][x])*4)/4).toFixed(1);
-        setColor(_c, 52, opacity - 0.1);
-        _c.fillRect(x*8, y*8, 8, 8);
+        opacity -= Config.ambientLight;
+        setColor(_c, 52, opacity);
+        _c.fillRect(x*8-vx, y*8-vy, 8, 8);
       }
     }
+
+    _e.globalCompositeOperation = "source-over";
+
+    // lighting debug
 
     // for (let i in player.animation.triangles) {
     //   let triangle = player.animation.triangles[i];
     //   _c.fillStyle = "rgba(255,255,255,0.5)";
     //   _c.beginPath();
-    //   _c.moveTo(triangle.a.x, triangle.a.y);
-    //   _c.lineTo(triangle.b.x, triangle.b.y);
-    //   _c.lineTo(triangle.c.x, triangle.c.y);
+    //   _c.moveTo(triangle.a.x-vx, triangle.a.y-vy);
+    //   _c.lineTo(triangle.b.x-vx, triangle.b.y-vy);
+    //   _c.lineTo(triangle.c.x-vx, triangle.c.y-vy);
     //   _c.closePath();
     //   _c.fill();
     // }
 
-    _e.globalCompositeOperation = "source-over";
-
-    // for (let i in player.animation.vertices) {
-    //   let v = player.animation.vertices[i];
-    //   _c.fillStyle = "rgba(0,255,0,0.5)";
-    //   _c.fillRect(v.x, v.y, 1, 1);
-    // }
+    for (let i in player.animation.vertices) {
+      let v = player.animation.vertices[i];
+      _c.fillStyle = "rgba(0,255,0,0.5)";
+      _c.fillRect(v.x-vx, v.y-vy, 1, 1);
+    }
   }
 
   step() {

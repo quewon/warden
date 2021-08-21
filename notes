@@ -30,12 +30,14 @@ but you survive by figuring out what it wants, what its nature is.
 
 
 aesthetics :
-generally blue(green) with highlights of yellow(orange) and red(violet)
 lighting, permanence
 everything on a grid
 
 
 
 
-ship layouts that are formulaic
-random aliens
+[x] random aliens
+[x] movement, collision, animation
+[x] lighting and shadows
+[ ] pulling aliens
+[ ] ships

@@ -9,5 +9,6 @@ var bank = {
   },
   hub: {
     name: "hub",
+    src: "hub",
   }
 };

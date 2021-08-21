@@ -29,7 +29,9 @@ function load_imgs() {
     "parts/horns.png",
 
     "scenes/testscene.png",
-    "scenes/testscene_cm.png"
+    "scenes/testscene_cm.png",
+    "scenes/hub.png",
+    "scenes/hub_cm.png",
   ];
 
   imgs = {};
@@ -155,11 +157,15 @@ function init() {
 
   scenes = {};
   scenes.hub = new scene(bank.hub);
-  scenes.current = "hub";
-
-  player = new alien(bank.player);
+  scenes.test = new scene({
+    name: "test",
+    src: "testscene",
+  });
 
   scenes.hub.spawnAliens();
+  scenes.test.spawnAliens();
+
+  player = new alien(bank.player);
 
   //
 
@@ -169,7 +175,7 @@ function init() {
 function animate() {
   _c.clearRect(0, 0, _canvas.width, _canvas.height);
 
-  scenes[scenes.current].draw();
+  scenes[player.scene].draw();
 
   update();
   requestAnimationFrame(animate);

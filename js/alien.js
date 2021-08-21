@@ -23,17 +23,21 @@ class alien {
       time: 0,
       distortion: [0, 0],
       duds: [],
+      direction: [0, 0],
     };
     this.buffer = [];
     this.speed = 0.06;
-    if (this.type=="player") this.findDuds();
+    if (this.type=="player") {
+      this.getCamera();
+      this.findDuds();
+    }
 
     ref.push(this);
   }
 
   randomPlacement() {
-    let roomw = scenes[this.scene].width;
-    let roomh = scenes[this.scene].height;
+    let roomw = scenes[this.scene].colmap[0].length*8;
+    let roomh = scenes[this.scene].colmap.length*8;
 
     let w = this.colmap[0].length;
     let h = this.colmap.length;
@@ -42,6 +46,11 @@ class alien {
     let y = Math.floor(Math.random() * (roomh-h)) * 8;
 
     return { x:x, y:y }
+  }
+
+  setPosition(x, y) {
+    this.position = { x:x, y:y };
+    this.animation.position = { x:x, y:y };
   }
 
   step() {
@@ -68,8 +77,8 @@ class alien {
     // get corners of walls & aliens
     let verts = [];
 
-    for (let y in colmap) {
-      for (let x in colmap[y]) {
+    for (let y=0; y<colmap.length; y++) {
+      for (let x=0; x<colmap[y].length; x++) {
         if (colmap[y][x] != "wall") continue;
 
         var sx = 0, sy = 0;
@@ -79,8 +88,8 @@ class alien {
         // check 4 corners
         for (let i=sy; i<2; i++) {
           for (let ii=sx; ii<2; ii++) {
-            let vx = (parseInt(x) + ii) * 8;
-            let vy = (parseInt(y) + i) * 8;
+            let vx = (x + ii) * 8;
+            let vy = (y + i) * 8;
 
             let overlaps = false;
             for (let c in verts) {
@@ -103,7 +112,7 @@ class alien {
       }
     }
 
-    this.animation.vertices = verts;
+    // clear unnecessary vertices
 
     // sort vertices by angle
     let px = this.position.x+4;
@@ -133,14 +142,14 @@ class alien {
     // cast triangles
     var triangles = [];
 
-    for (let i in verts) {
+    for (let i=0; i<verts.length; i++) {
       let c = verts[i];
       let nc;
 
-      if (parseInt(i)+1 > verts.length-1) {
+      if (i+1 > verts.length-1) {
         nc = verts[0];
       } else {
-        nc = verts[parseInt(i)+1];
+        nc = verts[i+1];
       }
 
       triangles.push({
@@ -152,11 +161,17 @@ class alien {
 
     this.animation.triangles = triangles;
 
+    let camera = this.animation.camera;
+    let cx = camera.x/8;
+    let cy = camera.y/8;
+    let cmx = camera.mx/8;
+    let cmy = camera.my/8;
+
     // check if point in the center of tile is within triangle
     let isdud = [];
-    for (let y in colmap) {
+    for (let y=cy; y<cmy; y++) {
       isdud[y] = [];
-      dudsearch: for (let x in colmap[y]) {
+      dudsearch: for (let x=cx; x<cmx; x++) {
         isdud[y][x] = true;
 
         if (colmap[y][x] == "wall") {
@@ -164,8 +179,8 @@ class alien {
           continue;
         }
 
-        let tx = parseInt(x)*8 + 4;
-        let ty = parseInt(y)*8 + 4;
+        let tx = x*8 + 4;
+        let ty = y*8 + 4;
 
         // if triangle intersects with tile, tile is false
 
@@ -185,6 +200,12 @@ class alien {
   }
 
   rayBlocked(a, b) {
+    let camera = this.animation.camera;
+    let cx = camera.x/8;
+    let cy = camera.y/8;
+    let cmx = camera.mx/8;
+    let cmy = camera.my/8;
+
     // draw a line segment starting at a and ending at b
     // get the first point where the line segment intersects a wall
     // if the point is equal to b, then return false
@@ -195,8 +216,8 @@ class alien {
     let colmap = scenes[this.scene].colmap;
     let distanced = [];
 
-    for (let y=0; y<colmap.length; y++) {
-      for (let x=0; x<colmap[y].length; x++) {
+    for (let y=cy; y<cmy; y++) {
+      for (let x=cx; x<cmx; x++) {
         if (colmap[y][x] != "wall") continue;
 
         distanced.push({
@@ -280,8 +301,43 @@ class alien {
     }
   }
 
+  getCamera() {
+    let vx=0;
+    let vy=0;
+    let x = this.animation.position.x;
+    let y = this.animation.position.y;
+    let vw = Config.viewportWidth*8;
+    let vh = Config.viewportHeight*8;
+    let vwh = Config.viewportWidth*4;
+    let vhh = Config.viewportHeight*4;
+    let sw = scenes[this.scene].colmap[0].length*8;
+    let sh = scenes[this.scene].colmap.length*8;
+    if (x >= sw-vwh) {
+      vx = sw-vw
+    } else if (x >= vwh) {
+      vx = x - vwh
+    }
+    if (y >= sh-vhh) {
+      vy = sh-vh;
+    } else if (y >= vhh) {
+      vy = y - vhh
+    }
+
+    this.animation.camera = {
+      x: vx,
+      y: vy,
+      width: vw,
+      height: vh,
+      mx: vx+vw,
+      my: vy+vh
+    };
+  }
+
   update() {
-    if (this.type=="player") this.light();
+    if (this.type=="player") {
+      this.light();
+      this.getCamera();
+    }
 
     if (this.animation.time >= 0.5) {
       if (this.buffer[0][1] == 0) {
@@ -337,7 +393,7 @@ class alien {
     this.animation.height = this.img.height;
   }
 
-  draw() {
+  draw(xo, yo) {
     let xoffset = 0;
     let yoffset = 0;
 
@@ -345,6 +401,9 @@ class alien {
       xoffset = this.animation.distortion[0] + this.buffer[0][0];
       yoffset = this.animation.distortion[1] + this.buffer[0][1];
     }
+
+    xoffset += xo;
+    yoffset += yo;
 
     drawImage({
       img: this.img,
@@ -385,6 +444,8 @@ class alien {
       }
     }
 
+    this.animation.direction = input;
+
     if (this.colliding(dx, dy, input, t).length == 0) {
       this.animation.position.x = newx;
       this.animation.position.y = newy;
@@ -403,10 +464,10 @@ class alien {
 
     let colmap = scenes[this.scene].colmap;
 
-    for (let ty in this.colmap) {
-      for (let tx in this.colmap[ty]) {
-        let cy = y/8 + parseInt(ty);
-        let cx = x/8 + parseInt(tx);
+    for (let ty=0; ty<this.colmap.length; ty++) {
+      for (let tx=0; tx<this.colmap[ty].length; tx++) {
+        let cy = y/8 + ty;
+        let cx = x/8 + tx;
 
         if (
           cy < 0 || cx < 0 ||
@@ -690,12 +751,9 @@ function alienImage() {
   let maxX = 0;
   let maxY = 0;
 
-  for (let y in m) {
-    for (let x in m[y]) {
+  for (let y=0; y<m.length; y++) {
+    for (let x=0; x<m[y].length; x++) {
       if (m[y][x] == 0) continue;
-
-      y = parseInt(y);
-      x = parseInt(x);
 
       if (minX === null) minX = x;
       if (minY === null) minY = y;
