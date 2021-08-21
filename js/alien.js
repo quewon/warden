@@ -358,7 +358,14 @@ class alien {
     }
 
     if (this.animation.time < 1 && this.buffer.length > 0) {
-      let speed = this.speed + (Math.pow(this.buffer.length, 1.5) * this.speed);
+      let speed = this.speed;
+
+      if (this.buffer.length > 2) {
+        speed += Math.pow(this.buffer.length-1, 1.5) * this.speed;
+      } else {
+        speed += this.speed;
+      }
+
       let t = this.animation.time + speed;
       if (t > 1) t = 1;
 
@@ -578,10 +585,13 @@ class alien {
                 let adx = apx+alien.buffer[0][0]*8;
                 let ady = apy+alien.buffer[0][1]*8;
 
+                if(this.type=="player")console.log(input, alien.buffer[0], adx, ady, x, y);
+
                 if ( // headed to the same tile
                   x + (tx*8) == adx + (ax*8) &&
                   y + (ty*8) == apy + (ay*8)
                 ) {
+                  if(this.type=="player")console.log('blocked');
                   this.setPosition(this.position.x, this.position.y);
                   allcols.push(alien);
                   break colmapsearch
