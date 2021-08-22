@@ -32,6 +32,9 @@ function load_imgs() {
     "scenes/testscene_cm.png",
     "scenes/hub.png",
     "scenes/hub_cm.png",
+
+    "scenes/parts/control.png",
+    "scenes/parts/control_cm.png",
   ];
 
   imgs = {};
@@ -163,9 +166,14 @@ function init() {
     name: "test",
     src: "testscene",
   });
+  scenes.control = new scene({
+    name: "control",
+    src: "parts/control",
+  });
 
   scenes.hub.spawnAliens();
   scenes.test.spawnAliens();
+  scenes.control.spawnAliens();
 
   player = new alien(bank.player);
 

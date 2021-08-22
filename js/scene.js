@@ -4,7 +4,7 @@ class scene {
     this.aliens = p.aliens || [];
     this.static = p.static || [];
     this.camera = {};
-    this.init(p.src || "testscene");
+    this.init(p.src);
   }
 
   init(src) {
@@ -20,7 +20,7 @@ class scene {
     _e.putImageData(filtered, 0, 0);
 
     _e.globalCompositeOperation = "destination-over";
-    let bg = sceneBGs.mosaic(img.width, img.height);
+    let bg = sceneBGs[Config.bgTexture](img.width, img.height);
     _e.drawImage(bg, 0, 0);
     _e.globalCompositeOperation = "source-over";
 
@@ -44,7 +44,7 @@ class scene {
     for (let y=0; y<img.height/8; y++) {
       this.colmap[y] = [];
       this.shadowmap[y] = [];
-      for (let x=0; x<img.height/8; x++) {
+      for (let x=0; x<img.width/8; x++) {
         this.colmap[y][x] = 0;
 
         let i = ((y*8 * _extra.width) + (x*8)) * 4;
@@ -60,6 +60,8 @@ class scene {
 
             if (k=="alienspawn") {
               this.alienspawns.push([x*8, y*8]);
+            } else if (k=="playerspawn") {
+              this.playerSpawn = { x: x*8, y: y*8 }
             }
 
             break searchkey
@@ -359,6 +361,42 @@ var sceneBGs = {
         let xo = 1 + Math.round(((Math.random()*2)-1));
         let yo = 1 + Math.round(((Math.random()*2)-1));
         _e.fillRect(x*8+xo, y*8+yo, 6, 6);
+      }
+    }
+
+    let image = new Image();
+    image.src = _extra.toDataURL();
+
+    return image
+  },
+  carpet: function(w, h) {
+    for (let y=0; y<w; y++) {
+      for (let x=0; x<w; x++) {
+        let opacity = Math.random();
+
+        setColor(_e, 201, opacity-0.5);
+        _e.fillRect(x*8+1, y*8+1, 6, 6);
+        _e.fillRect(x*8, y*8, 8, 8);
+      }
+    }
+
+    let image = new Image();
+    image.src = _extra.toDataURL();
+
+    return image
+  },
+  ground: function(w, h) {
+    for (let y=0; y<w; y++) {
+      for (let x=0; x<w; x++) {
+        if (Math.random() > 0.1) continue;
+
+        let opacity = Math.random() - 0.2;
+
+        setColor(_e, 132, opacity);
+
+        let xo = 1 + Math.round(((Math.random()*2)-1));
+        let yo = 1 + Math.round(((Math.random()*2)-1));
+        _e.fillRect(x*8+xo, y*8+yo, 3+xo, 1);
       }
     }
 

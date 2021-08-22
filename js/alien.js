@@ -16,7 +16,11 @@ class alien {
     this.moveScene(p.scene || "hub");
     
     this.colmap = p.colmap || this.img.colmap;
-    this.position = p.position || this.randomPlacement();
+    if (this.type=="player") {
+      this.position = scenes[p.scene].playerSpawn
+    } else {
+      this.position = p.position || { x:0, y:0 };
+    }
     this.animation = {
       position: { x: this.position.x, y: this.position.y },
       flip: false,
@@ -38,22 +42,11 @@ class alien {
     ref.push(this);
   }
 
-  randomPlacement() {
-    let roomw = scenes[this.scene].colmap[0].length*8;
-    let roomh = scenes[this.scene].colmap.length*8;
-
-    let w = this.colmap[0].length;
-    let h = this.colmap.length;
-
-    let x = Math.floor(Math.random() * (roomw-w)) * 8;
-    let y = Math.floor(Math.random() * (roomh-h)) * 8;
-
-    return { x:x, y:y }
-  }
-
   setPosition(x, y) {
     this.position = { x:x, y:y };
-    this.animation.position = { x:x, y:y };
+    if ('animation' in this) {
+      this.animation.position = { x:x, y:y };
+    }
   }
 
   moveScene(s) {
@@ -1049,41 +1042,6 @@ var alienTextures = {
         _e.fillRect(x+xo+1, y+yo-1, 1, 1);
         _e.fillRect(x+xo, y+yo, 3, 1);
         _e.fillRect(x+xo+1, y+yo+1, 1, 1);
-      }
-    }
-
-    _e.globalCompositeOperation = "source-over";
-
-    for (let i=0; i<details.data.length; i+=4) {
-      if (
-        details.data[i] == Config.filter[94][0] &&
-        details.data[i+1] == Config.filter[94][1] &&
-        details.data[i+2] == Config.filter[94][2]
-      ) {
-        setColor(_e, 94);
-        _e.fillRect(
-          (i/4)%details.width,
-          Math.floor((i/4)/details.width),
-          1, 1
-        );
-      }
-    }
-  },
-  minus: function() {
-    let details = _e.getImageData(0, 0, _extra.width, _extra.height);
-
-    _e.globalCompositeOperation = "source-atop";
-
-    for (let y=0; y<_extra.height; y+=5) {
-      for (let x=0; x<_extra.width; x+=5) {
-        let opacity = Math.random()*0.3;
-
-        let xo = Math.round(Math.random()*2 - 1);
-        let yo = Math.round(Math.random()*2 - 1);
-
-        setColor(_e, 226, opacity);
-
-        _e.fillRect(x+xo, y+yo, 3, 1);
       }
     }
 

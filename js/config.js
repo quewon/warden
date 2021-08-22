@@ -7,9 +7,8 @@ var Config = {
     interact: " "
   },
 
-  bg: "#397485",
-
-  alienTexture: "wavy",
+  alienTexture: "mosaic",
+  bgTexture: "carpet",
   filter: {
     // grayscale
     // 52: [52, 52, 52],
