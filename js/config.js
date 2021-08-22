@@ -7,7 +7,7 @@ var Config = {
     interact: " "
   },
 
-  alienTexture: "mosaic",
+  alienTexture: "wavy",
   bgTexture: "carpet",
   filter: {
     // grayscale
