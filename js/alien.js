@@ -757,14 +757,31 @@ function alienImage() {
 
   // DRAW IT!!
 
-  for (let y in m) {
-    for (let x in m[y]) {
+  for (let y=0; y<m.length; y++) {
+    for (let x=0; x<m[y].length; x++) {
       switch (m[y][x]) {
         case "head":
           _e.putImageData(
             G.arrayRandom(alienParts.heads.tiles),
             x * 8, y * 8
           );
+          if (y>0) {
+            if (m[y-1][x] != 0) {
+              _e.fillRect(x*8, y*8, 8, 1);
+            }
+          }
+          if (x>0) {
+            if (m[y][x-1] != 0) {
+              setColor(_e, 237, 1);
+              _e.fillRect(x*8, y*8, 1, 1);
+            }
+          }
+          if (x<m[0].length-1) {
+            if (m[y][x+1] != 0) {
+              setColor(_e, 237, 1);
+              _e.fillRect(x*8+7, y*8, 1, 1);
+            }
+          }
           break;
         case "right shoulder":
           _e.putImageData(
@@ -779,10 +796,11 @@ function alienImage() {
           );
           break;
         case "body":
-          setColor(_e, 94, 1);
-          _e.fillRect(x*8, y*8, 8, 8);
+          // setColor(_e, 94, 1);
           setColor(_e, 237, 1);
-          _e.fillRect(x*8+1, y*8+1, 6, 6);
+          _e.fillRect(x*8, y*8, 8, 8);
+          // setColor(_e, 237, 1);
+          // _e.fillRect(x*8+1, y*8+1, 6, 6);
           break;
         case "leg":
           _e.putImageData(
@@ -854,90 +872,90 @@ function alienImage() {
       maxX = x;
       maxY = y;
 
-      // check diagonal and adjacent tiles
+      // strip outlines that overlap
 
-      if (y > 0) {
-        if (m[y-1][x] != 0) {
-          let imgdata = _e.getImageData(x*8-1, y*8-2, 10, 4);
-          let data = imgdata.data;
-          for (let i=0; i<data.length; i+=4) {
-            // if pixel is black and is adjacent to white px
-            // then change it to a white px
+      // if (y > 0) {
+      //   if (m[y-1][x] != 0) {
+      //     let imgdata = _e.getImageData(x*8-1, y*8-2, 10, 4);
+      //     let data = imgdata.data;
+      //     for (let i=0; i<data.length; i+=4) {
+      //       // if pixel is black and is adjacent to white px
+      //       // then change it to a white px
 
-            let down = i + imgdata.width*4;
-            let up = i - imgdata.width*4;
-            let left = i - 4;
-            let right = i + 4;
-            let upleft = i - imgdata.width*4 - 4;
-            let upright = i - imgdata.width*4 + 4;
-            let downleft = i + imgdata.width*4 - 4;
-            let downright = i + imgdata.width*4 + 4;
+      //       let down = i + imgdata.width*4;
+      //       let up = i - imgdata.width*4;
+      //       let left = i - 4;
+      //       let right = i + 4;
+      //       let upleft = i - imgdata.width*4 - 4;
+      //       let upright = i - imgdata.width*4 + 4;
+      //       let downleft = i + imgdata.width*4 - 4;
+      //       let downright = i + imgdata.width*4 + 4;
 
-            if (
-              data[i] == Config.filter[94][0] &&
-              data[i+1] == Config.filter[94][1] &&
-              data[i+2] == Config.filter[94][2] &&
+      //       if (
+      //         data[i] == Config.filter[94][0] &&
+      //         data[i+1] == Config.filter[94][1] &&
+      //         data[i+2] == Config.filter[94][2] &&
 
-              (
-                data[down+3] != 0 &&
-                data[up+3] != 0 &&
-                data[left+3] != 0 &&
-                data[right+3] != 0 &&
-                data[upleft+3] != 0 &&
-                data[upright+3] != 0 &&
-                data[downleft+3] != 0 &&
-                data[downright+3] != 0
-              )
-            ) {
-              data[i] = Config.filter[237][0];
-              data[i+1] = Config.filter[237][1];
-              data[i+2] = Config.filter[237][2];
-            }
-          }
-          _e.putImageData(imgdata, x*8-1, y*8-2);
-        }
-      }
-      if (x+1 < w) {
-        if (m[y][x+1] != 0) {
-          let imgdata = _e.getImageData(x*8+6, y*8-1, 4, 10);
-          let data = imgdata.data;
-          for (let i=0; i<data.length; i+=4) {
-            // if pixel is black and is adjacent to white px
-            // then change it to a white px
+      //         (
+      //           data[down+3] != 0 &&
+      //           data[up+3] != 0 &&
+      //           data[left+3] != 0 &&
+      //           data[right+3] != 0 &&
+      //           data[upleft+3] != 0 &&
+      //           data[upright+3] != 0 &&
+      //           data[downleft+3] != 0 &&
+      //           data[downright+3] != 0
+      //         )
+      //       ) {
+      //         data[i] = Config.filter[237][0];
+      //         data[i+1] = Config.filter[237][1];
+      //         data[i+2] = Config.filter[237][2];
+      //       }
+      //     }
+      //     _e.putImageData(imgdata, x*8-1, y*8-2);
+      //   }
+      // }
+      // if (x+1 < w) {
+      //   if (m[y][x+1] != 0) {
+      //     let imgdata = _e.getImageData(x*8+6, y*8-1, 4, 10);
+      //     let data = imgdata.data;
+      //     for (let i=0; i<data.length; i+=4) {
+      //       // if pixel is black and is adjacent to white px
+      //       // then change it to a white px
 
-            let down = i + imgdata.width*4;
-            let up = i - imgdata.width*4;
-            let left = i - 4;
-            let right = i + 4;
-            let upleft = i - imgdata.width*4 - 4;
-            let upright = i - imgdata.width*4 + 4;
-            let downleft = i + imgdata.width*4 - 4;
-            let downright = i + imgdata.width*4 + 4;
+      //       let down = i + imgdata.width*4;
+      //       let up = i - imgdata.width*4;
+      //       let left = i - 4;
+      //       let right = i + 4;
+      //       let upleft = i - imgdata.width*4 - 4;
+      //       let upright = i - imgdata.width*4 + 4;
+      //       let downleft = i + imgdata.width*4 - 4;
+      //       let downright = i + imgdata.width*4 + 4;
 
-            if (
-              data[i] == Config.filter[94][0] &&
-              data[i+1] == Config.filter[94][1] &&
-              data[i+2] == Config.filter[94][2] &&
+      //       if (
+      //         data[i] == Config.filter[94][0] &&
+      //         data[i+1] == Config.filter[94][1] &&
+      //         data[i+2] == Config.filter[94][2] &&
 
-              (
-                data[down+3] != 0 &&
-                data[up+3] != 0 &&
-                data[left+3] != 0 &&
-                data[right+3] != 0 &&
-                data[upleft+3] != 0 &&
-                data[upright+3] != 0 &&
-                data[downleft+3] != 0 &&
-                data[downright+3] != 0
-              )
-            ) {
-              data[i] = Config.filter[237][0];
-              data[i+1] = Config.filter[237][1];
-              data[i+2] = Config.filter[237][2];
-            }
-          }
-          _e.putImageData(imgdata, x*8+6, y*8-1);
-        }
-      }
+      //         (
+      //           data[down+3] != 0 &&
+      //           data[up+3] != 0 &&
+      //           data[left+3] != 0 &&
+      //           data[right+3] != 0 &&
+      //           data[upleft+3] != 0 &&
+      //           data[upright+3] != 0 &&
+      //           data[downleft+3] != 0 &&
+      //           data[downright+3] != 0
+      //         )
+      //       ) {
+      //         data[i] = Config.filter[237][0];
+      //         data[i+1] = Config.filter[237][1];
+      //         data[i+2] = Config.filter[237][2];
+      //       }
+      //     }
+      //     _e.putImageData(imgdata, x*8+6, y*8-1);
+      //   }
+      // }
     }
   }
 
@@ -947,6 +965,10 @@ function alienImage() {
   _extra.height = (maxY-minY+1)*8;
 
   _e.putImageData(imgdata, 0, 0);
+
+  // apply texture
+
+  alienTextures.mosaic();
 
   let image = new Image();
   image.src = _extra.toDataURL();
@@ -976,4 +998,42 @@ function alienName() {
 
 function alienAge() {
   return 10
+}
+
+var alienTextures = {
+  mosaic: function() {
+    let og = new Image();
+    og.src = _extra.toDataURL();
+
+    let details = _e.getImageData(0, 0, _extra.width, _extra.height);
+
+    _e.globalCompositeOperation = "source-atop";
+
+    for (let y=0; y<_extra.height; y++) {
+      for (let x=0; x<_extra.width; x++) {
+        let opacity = Math.random()*0.3;
+
+        setColor(_e, 226, opacity);
+
+        _e.fillRect(x, y, 1, 1);
+      }
+    }
+
+    _e.globalCompositeOperation = "source-over";
+
+    for (let i=0; i<details.data.length; i+=4) {
+      if (
+        details.data[i] == Config.filter[94][0] &&
+        details.data[i+1] == Config.filter[94][1] &&
+        details.data[i+2] == Config.filter[94][2]
+      ) {
+        setColor(_e, 94);
+        _e.fillRect(
+          (i/4)%details.width,
+          Math.floor((i/4)/details.width),
+          1, 1
+        );
+      }
+    }
+  },
 }

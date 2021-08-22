@@ -249,7 +249,8 @@ class scene {
         for (let x=0; x<alien.colmap[y].length; x++) {
           if (alien.colmap[y][x] == 0) continue;
 
-          setColor(_c, G.arrayRandom([237,226,201]));
+          // setColor(_c, G.arrayRandom([237,226,201]));
+          setColor(_c, 94);
           _c.fillRect(
             a.x-1-vx+dx + x*8,
             a.y-1-vy+dy + y*8,
@@ -353,7 +354,7 @@ var sceneBGs = {
       for (let x=0; x<w; x++) {
         let opacity = Math.random();
 
-        setColor(_e, 226, opacity);
+        setColor(_e, 201, opacity);
 
         let xo = 1 + Math.round(((Math.random()*2)-1));
         let yo = 1 + Math.round(((Math.random()*2)-1));

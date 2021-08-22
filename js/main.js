@@ -103,6 +103,8 @@ function init() {
     now: Date.now(),
   };
 
+  document.documentElement.style.setProperty("--bg", "rgb("+Config.filter[52][0]+","+Config.filter[52][1]+","+Config.filter[52][2]+")");
+
   _canvas = document.getElementById("canvas");
   _extra = document.getElementById("extra");
   _debug = document.getElementById("debug");
