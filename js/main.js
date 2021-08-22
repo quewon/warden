@@ -200,6 +200,8 @@ function spriteFilter(image) {
   let imgdata = dataFilter(_e.getImageData(0, 0, _extra.width, _extra.height));
   _e.putImageData(imgdata, 0, 0);
 
+  alienTextures[Config.alienTexture]();
+
   image.src = _extra.toDataURL();
 
   return image

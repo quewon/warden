@@ -9,6 +9,7 @@ var Config = {
 
   bg: "#397485",
 
+  alienTexture: "wavy",
   filter: {
     // grayscale
     // 52: [52, 52, 52],

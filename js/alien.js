@@ -967,8 +967,7 @@ function alienImage() {
   _e.putImageData(imgdata, 0, 0);
 
   // apply texture
-
-  alienTextures.mosaic();
+  alienTextures[Config.alienTexture]();
 
   let image = new Image();
   image.src = _extra.toDataURL();
@@ -1002,16 +1001,13 @@ function alienAge() {
 
 var alienTextures = {
   mosaic: function() {
-    let og = new Image();
-    og.src = _extra.toDataURL();
-
     let details = _e.getImageData(0, 0, _extra.width, _extra.height);
 
     _e.globalCompositeOperation = "source-atop";
 
     for (let y=0; y<_extra.height; y++) {
       for (let x=0; x<_extra.width; x++) {
-        let opacity = Math.random()*0.3;
+        let opacity = Math.random()*0.2;
 
         setColor(_e, 226, opacity);
 
@@ -1036,4 +1032,145 @@ var alienTextures = {
       }
     }
   },
-}
+  flowers: function() {
+    let details = _e.getImageData(0, 0, _extra.width, _extra.height);
+
+    _e.globalCompositeOperation = "source-atop";
+
+    for (let y=0; y<_extra.height; y+=5) {
+      for (let x=0; x<_extra.width; x+=5) {
+        let opacity = Math.random()*0.3;
+
+        let xo = Math.round(Math.random()*2 - 1);
+        let yo = Math.round(Math.random()*2 - 1);
+
+        setColor(_e, 226, opacity);
+
+        _e.fillRect(x+xo+1, y+yo-1, 1, 1);
+        _e.fillRect(x+xo, y+yo, 3, 1);
+        _e.fillRect(x+xo+1, y+yo+1, 1, 1);
+      }
+    }
+
+    _e.globalCompositeOperation = "source-over";
+
+    for (let i=0; i<details.data.length; i+=4) {
+      if (
+        details.data[i] == Config.filter[94][0] &&
+        details.data[i+1] == Config.filter[94][1] &&
+        details.data[i+2] == Config.filter[94][2]
+      ) {
+        setColor(_e, 94);
+        _e.fillRect(
+          (i/4)%details.width,
+          Math.floor((i/4)/details.width),
+          1, 1
+        );
+      }
+    }
+  },
+  minus: function() {
+    let details = _e.getImageData(0, 0, _extra.width, _extra.height);
+
+    _e.globalCompositeOperation = "source-atop";
+
+    for (let y=0; y<_extra.height; y+=5) {
+      for (let x=0; x<_extra.width; x+=5) {
+        let opacity = Math.random()*0.3;
+
+        let xo = Math.round(Math.random()*2 - 1);
+        let yo = Math.round(Math.random()*2 - 1);
+
+        setColor(_e, 226, opacity);
+
+        _e.fillRect(x+xo, y+yo, 3, 1);
+      }
+    }
+
+    _e.globalCompositeOperation = "source-over";
+
+    for (let i=0; i<details.data.length; i+=4) {
+      if (
+        details.data[i] == Config.filter[94][0] &&
+        details.data[i+1] == Config.filter[94][1] &&
+        details.data[i+2] == Config.filter[94][2]
+      ) {
+        setColor(_e, 94);
+        _e.fillRect(
+          (i/4)%details.width,
+          Math.floor((i/4)/details.width),
+          1, 1
+        );
+      }
+    }
+  },
+  x: function() {
+    let details = _e.getImageData(0, 0, _extra.width, _extra.height);
+
+    _e.globalCompositeOperation = "source-atop";
+
+    for (let y=0; y<_extra.height; y+=6) {
+      for (let x=0; x<_extra.width; x+=6) {
+        let opacity = Math.random()*0.3;
+
+        let xo = Math.round(Math.random()*2 - 1);
+        let yo = Math.round(Math.random()*2 - 1);
+
+        setColor(_e, 226, opacity);
+
+        _e.fillRect(x+xo, y+yo-1, 1, 1);
+        _e.fillRect(x+xo+2, y+yo-1, 1, 1);
+        _e.fillRect(x+xo+1, y+yo, 1, 1);
+        _e.fillRect(x+xo, y+yo+1, 1, 1);
+        _e.fillRect(x+xo+2, y+yo+1, 1, 1);
+      }
+    }
+
+    _e.globalCompositeOperation = "source-over";
+
+    for (let i=0; i<details.data.length; i+=4) {
+      if (
+        details.data[i] == Config.filter[94][0] &&
+        details.data[i+1] == Config.filter[94][1] &&
+        details.data[i+2] == Config.filter[94][2]
+      ) {
+        setColor(_e, 94);
+        _e.fillRect(
+          (i/4)%details.width,
+          Math.floor((i/4)/details.width),
+          1, 1
+        );
+      }
+    }
+  },
+  wavy: function() {
+    let details = _e.getImageData(0, 0, _extra.width, _extra.height);
+
+    _e.globalCompositeOperation = "source-atop";
+
+    for (let y=0; y<_extra.height; y+=3) {
+      let opacity = Math.random()*0.4;
+      setColor(_e, 226, opacity);
+      for (let x=0; x<_extra.width; x++) {
+        _e.fillRect(x, y+(x%2), 1, 1);
+      }
+    }
+
+    _e.globalCompositeOperation = "source-over";
+
+    for (let i=0; i<details.data.length; i+=4) {
+      if (
+        details.data[i] == Config.filter[94][0] &&
+        details.data[i+1] == Config.filter[94][1] &&
+        details.data[i+2] == Config.filter[94][2]
+      ) {
+        setColor(_e, 94);
+        _e.fillRect(
+          (i/4)%details.width,
+          Math.floor((i/4)/details.width),
+          1, 1
+        );
+      }
+    }
+  },
+};
