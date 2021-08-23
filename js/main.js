@@ -84,6 +84,7 @@ function load_sounds() {
   let check = setInterval(function() {
     for (let i in sounds) {
       for (let s in sounds[i]) {
+        console.log(sounds[i][s].state());
         if (sounds[i][s].state() == "loaded") {
           checklist--;
         }
@@ -177,6 +178,11 @@ function init() {
   scenes.control.spawnAliens();
 
   player = new alien(bank.player);
+  player.jobs = {
+    sum: 0,
+    reputation: 0,
+    connections: [],
+  };
 
   //
 
