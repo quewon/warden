@@ -90,6 +90,7 @@ function load_sounds() {
       }
     }
     if (checklist == 0) {
+      console.log("all assets loaded.");
       init();
       clearInterval(check);
     }
@@ -99,7 +100,7 @@ function load_sounds() {
 function init() {
   init_controls();
 
-  console.log('initializing...');
+  console.log('initializing game...');
 
   clock = {
     prev: Date.now(),

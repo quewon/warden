@@ -484,11 +484,17 @@ class alien {
     let w = this.img.width;
     let h = this.img.height;
 
+    // aliens
+
+    let aliens = scenes[this.scene].aliens;
+
+    let col = [];
+
     // walls
 
     let colmap = scenes[this.scene].colmap;
 
-    for (let ty=0; ty<this.colmap.length; ty++) {
+    wallsearch: for (let ty=0; ty<this.colmap.length; ty++) {
       for (let tx=0; tx<this.colmap[ty].length; tx++) {
         let cy = y/8 + ty;
         let cx = x/8 + tx;
@@ -497,20 +503,32 @@ class alien {
           cy < 0 || cx < 0 ||
           cy >= colmap.length || cx >= colmap[0].length
           ) {
-          return ["wall"]
-        }
-
-        if (colmap[cy][cx] == "wall") {
-          return ["wall"]
+          col.push({
+            id: -1,
+            position: {
+              x: cx*8,
+              y: cy*8,
+            },
+            colmap: [[1]],
+            animation: { time: 0 },
+            buffer: [],
+            wall: true,
+          });
+        } else if (colmap[cy][cx] == "wall") {
+          col.push({
+            id: -1,
+            position: {
+              x: cx*8,
+              y: cy*8,
+            },
+            colmap: [[1]],
+            animation: { time: 0 },
+            buffer: [],
+            wall: true,
+          });
         }
       }
     }
-
-    // aliens
-
-    let aliens = scenes[this.scene].aliens;
-
-    let col = [];
 
     for (let a in aliens) {
       let alien = ref[aliens[a]];
@@ -557,6 +575,15 @@ class alien {
       for (let ty in this.colmap) {
         for (let tx in this.colmap[ty]) {
           if (this.colmap[ty][tx] == 0) continue;
+
+          if ('wall' in alien) {
+            if (
+              x + (tx*8) == alien.position.x &&
+              y + (ty*8) == alien.position.y
+            ) {
+              return ['wall']
+            }
+          }
 
           colmapsearch: for (let ay in alien.colmap) {
 

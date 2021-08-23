@@ -39,9 +39,34 @@ but you survive by figuring out what it wants, what its nature is.
 consistencies:
 - everything on a grid
 - permanence
-- no languages -- pictograms
-  - this world doesn't have a universal language, so aliens in universal communities must communicate through pictures
+- emoji language
+  💰❓
+  ❌
+  ❓
+  👎
+- doors are hardy aliens
 
+design:
+- no permadeath -- instead, you can't return to a level that you've failed, and getting neutralized has several disadvantages:
+  - reputation decreasing
+    - high profile companies refusing to work with you
+    - having to work with illegals or pirates, who are less reliable
+      - could refuse to pay you if something happens
+      - might get you arrested at the border
+      - might understate how dangerous the job is
+  - miss out on information and job money
+
+game loop:
+1. acquire missions
+  - companies
+  - governments
+  - pirates
+  - just get a ticket
+2. do mission
+3. use money
+  - acquire missions
+  - go to different stations
+  - broker information
 
 [x] random aliens
 [x] movement, collision, animation
@@ -50,3 +75,13 @@ consistencies:
 [ ] ships
 
 [ ] ray collision is leaky
+
+[ ] configurable player speed
+[ ] configurable palette
+
+goal of game:
+acquire enough knowledge and friends(?) to find and take on the _.
+
+like firefly, this game could have a number of player-settable goals. like fixing bad reputation. or getting x amount of money. character relationships could motivate this.
+
+for some jobs, you have to acquire your own tickets. this means that the player has the ability to go on ships without having a job. you can be a passenger on a ship and gather information without losing reputation, but you'll lose cash and you can't access staff only zones.
