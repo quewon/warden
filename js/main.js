@@ -73,9 +73,8 @@ function load_sounds() {
     ],
   };
 
-  var checklist = 0;
-
   let check = setInterval(function() {
+    var checklist = 0;
     for (let i in sounds) {
       for (let s in sounds[i]) {
         checklist++;
