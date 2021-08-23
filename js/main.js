@@ -89,8 +89,7 @@ function load_sounds() {
         }
       }
     }
-    console.log(checklist);
-    if (checklist == 0) {
+    if (checklist <= 0) {
       console.log("all assets loaded.");
       init();
       clearInterval(check);
