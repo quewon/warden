@@ -84,12 +84,12 @@ function load_sounds() {
   let check = setInterval(function() {
     for (let i in sounds) {
       for (let s in sounds[i]) {
-        console.log(sounds[i][s].state());
         if (sounds[i][s].state() == "loaded") {
           checklist--;
         }
       }
     }
+    console.log(checklist);
     if (checklist == 0) {
       console.log("all assets loaded.");
       init();
