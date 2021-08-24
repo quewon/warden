@@ -1,14 +1,4 @@
-warden
-
-you are a tiny warden that works on spaceships,
-keeping dangerous aliens in check
-
-being developed in pure javascript --
-game is constantly updated live on github!
-
-puzzle style
-like when you move the monsters move
-and it’s ascii
+title should be more..... fun !!!!!!!!!!!!!
 
 'dangerous' aliens that:
 - clone themselves
@@ -16,25 +6,18 @@ and it’s ascii
 - hijack your controls
 - hijack music
 - speak??
+just wanna get them under control. no flying them out of airlocks.
+some of these 'dangerous' aliens are misunderstood.
 
-you just wanna get them under control
-you don’t wanna kill them
-because you of all people know that they are thinking feeling creatures
-though others may not
+the experience:
+- goal: collecting information and money.
+- a small number of recurring characters
 
-information you’ll have to gather on your own, and sometimes you will have to choose between gathering information and executing your plan
-randomization
-recurring characters
-a hub where you work for specific companies and barter information
-  if you leak information on how to warden something, you’ll be out of a job
-  you gotta watch out for people that want your information in order to do bad things
-
-training in the beginning — a tutorial that teaches you how to teach yourself the rules of the game, as well as forming a sort of backstory like
-you were once a kid on a ship hijacked by dumb space pirates
-and they dragged in this crazy monster to get rid of everybody
+a tutorial that teaches you how to teach yourself the rules of the game, as well as forming a sort of backstory like
+you were a kid on a ship hijacked by dumb space pirates
+and they dragged in this crazy alien to get rid of everybody
 but they didn’t know how to control it, and so they got attacked as well
 but you survive by figuring out what it wants, what its nature is.
-
 
 consistencies:
 - everything on a grid
@@ -46,27 +29,37 @@ consistencies:
   👎
 - doors are hardy aliens
 
-design:
-- no permadeath -- instead, you can't return to a level that you've failed, and getting neutralized has several disadvantages:
-  - reputation decreasing
-    - high profile companies refusing to work with you
-    - having to work with illegals or pirates, who are less reliable
-      - could refuse to pay you if something happens
-      - might get you arrested at the border
-      - might understate how dangerous the job is
-  - miss out on information and job money
-
 game loop:
-1. acquire missions
-  - companies
-  - governments
-  - pirates
-  - just get a ticket
+1. choose mission
 2. do mission
-3. use money
-  - acquire missions
-  - go to different stations
-  - broker information
+3. unlock missions, characters, lore, music(?)
+
+4. take on the Big Mission
+
+big ball - cargo
+  small
+  cheap
+big ball - lux
+  big
+  clean
+big ball - passenger
+  big
+  cozy
+
+dusty - pirates
+  medium
+  grimy
+
+dusty - cargo/lux
+  small
+  bougie
+
+glass eye - cargo/passenger
+  medium
+  sleek tech
+
+
+to do
 
 [x] random aliens
 [x] movement, collision, animation

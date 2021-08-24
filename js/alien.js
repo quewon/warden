@@ -37,7 +37,6 @@ class alien {
 
     this.reach = 1;
     this.interactable = null;
-    this.dragging = null;
 
     ref.push(this);
   }
@@ -455,19 +454,6 @@ class alien {
 
     let stuck = false;
 
-    if (this.dragging) {
-      let alien = ref[this.dragging];
-      let nudge = alien.nudge(input, t);
-      if (!nudge) {
-        stuck = true;
-        alien.animation.time = t;
-      } else {
-        alien.buffer.shift;
-      }
-
-      console.log("dragged "+alien.id);
-    }
-
     if (this.colliding(dx, dy, input, t).length == 0 && !stuck) {
       this.animation.position.x = newx;
       this.animation.position.y = newy;
@@ -643,7 +629,6 @@ class alien {
 
   findInteractable() {
     this.interactable = null;
-    this.dragging = null;
 
     search: for (let y=-1*this.reach; y<=this.reach; y++) {
       let sx = y==-1*this.reach || y==this.reach ? 1 : 0;
@@ -657,12 +642,6 @@ class alien {
         }
       }
     }
-  }
-
-  drag() {
-    if (this.interactable == null) return;
-
-    this.dragging = this.interactable.id;
   }
 
   interact() {
