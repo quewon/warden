@@ -45,18 +45,17 @@ big ball - lux
 big ball - passenger
   big
   cozy
-
 dusty - pirates
   medium
   grimy
-
 dusty - cargo/lux
   small
   bougie
-
 glass eye - cargo/passenger
   medium
   sleek tech
+
+mysterious elements... dark rooms with intimate music and characters
 
 
 to do
@@ -71,10 +70,3 @@ to do
 
 [ ] configurable player speed
 [ ] configurable palette
-
-goal of game:
-acquire enough knowledge and friends(?) to find and take on the _.
-
-like firefly, this game could have a number of player-settable goals. like fixing bad reputation. or getting x amount of money. character relationships could motivate this.
-
-for some jobs, you have to acquire your own tickets. this means that the player has the ability to go on ships without having a job. you can be a passenger on a ship and gather information without losing reputation, but you'll lose cash and you can't access staff only zones.

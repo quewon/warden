@@ -5,6 +5,8 @@ class scene {
     this.static = p.static || [];
     this.camera = {};
     this.init(p.src);
+
+    this.ambientLight = p.ambientLight || 0.2; //max: 0.99, min: 0.001 | 0.2, 0.6
   }
 
   init(src) {
@@ -40,6 +42,7 @@ class scene {
     this.shadowmap = [];
 
     this.alienspawns = [];
+    this.doormanspawns = [];
 
     for (let y=0; y<img.height/8; y++) {
       this.colmap[y] = [];
@@ -58,10 +61,19 @@ class scene {
           ) {
             this.colmap[y][x] = k;
 
-            if (k=="alienspawn") {
-              this.alienspawns.push([x*8, y*8]);
-            } else if (k=="playerspawn") {
-              this.playerSpawn = { x: x*8, y: y*8 }
+            switch (k) {
+              case "alienspawn":
+                this.alienspawns.push([x*8, y*8]);
+                break;
+              case "playerspawn":
+                this.playerSpawn = { x: x*8, y: y*8 };
+                break;
+              case "doormanv":
+                this.doormanspawns.push([x*8, y*8, 0])
+                break;
+              case "doormanh":
+                this.doormanspawns.push([x*8, y*8, 1]);
+                break;
             }
 
             break searchkey
@@ -218,6 +230,18 @@ class scene {
         Math[ry]((newy)/8)*8
       );
     }
+
+    for (let c in this.doormanspawns) {
+      let p = this.doormanspawns[c];
+      let a = new doorman({
+        scene: this.name,
+        orientation: p[2]
+      });
+      a.setPosition(
+        Math.round(p[0]/8)*8,
+        Math.round(p[1]/8)*8
+      );
+    }
   }
 
   draw() {
@@ -252,7 +276,7 @@ class scene {
           if (alien.colmap[y][x] == 0) continue;
 
           // setColor(_c, G.arrayRandom([237,226,201]));
-          setColor(_c, 94);
+          setColor(_c, alien.animation.highlight);
           _c.fillRect(
             a.x-1-vx+dx + x*8,
             a.y-1-vy+dy + y*8,
@@ -303,7 +327,7 @@ class scene {
         }
 
         let opacity = (Math.round((1-this.shadowmap[y][x])*4)/4).toFixed(1);
-        opacity -= Config.ambientLight;
+        opacity -= this.ambientLight;
         setColor(_c, 52, opacity);
         _c.fillRect(x*8-vx+dx, y*8-vy+dy, 8, 8);
       }

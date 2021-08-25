@@ -57,13 +57,14 @@ var Config = {
   },
   hardLightRadius: 3,
   softLightRadius: 6,
-  ambientLight: 0.99, //max: 0.99, min: 0.001 | 0.2, 0.6
   imageSmoothingEnabled: false,
 
   colKey: {
     "wall": [255, 0, 0],
     "playerspawn": [0, 255, 0],
     "alienspawn": [0, 0, 255],
+    "doormanv": [0, 255, 255],
+    "doormanh": [255, 255, 0],
   },
 
   viewportWidth: 20,

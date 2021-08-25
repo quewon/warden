@@ -28,13 +28,10 @@ function load_imgs() {
     "parts/left shoulders.png",
     "parts/horns.png",
 
-    "scenes/testscene.png",
-    "scenes/testscene_cm.png",
     "scenes/hub.png",
     "scenes/hub_cm.png",
-
-    "scenes/parts/control.png",
-    "scenes/parts/control_cm.png",
+    "scenes/glasseye.png",
+    "scenes/glasseye_cm.png",
   ];
 
   imgs = {};
@@ -161,18 +158,10 @@ function init() {
 
   scenes = {};
   scenes.hub = new scene(bank.hub);
-  scenes.test = new scene({
-    name: "test",
-    src: "testscene",
-  });
-  scenes.control = new scene({
-    name: "control",
-    src: "parts/control",
-  });
+  scenes.glasseye = new scene(bank.glasseye);
 
   scenes.hub.spawnAliens();
-  scenes.test.spawnAliens();
-  scenes.control.spawnAliens();
+  scenes.glasseye.spawnAliens();
 
   player = new alien(bank.player);
   player.jobs = {
