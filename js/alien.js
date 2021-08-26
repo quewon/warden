@@ -28,6 +28,8 @@ class alien {
       time: 0,
       distortion: [0, 0],
       distortionTime: 0,
+      color: { value: 52, opacity: 0 },
+      colorTime: 0,
       duds: [],
       highlight: 94,
     };
@@ -616,8 +618,10 @@ class alien {
 
     if (this.activated) {
       this.animation.distortionTime++;
+      this.animation.colorTime++;
     } else {
       this.animation.distortionTime = 0;
+      this.animation.colorTime = 0;
     }
 
     if (this.animation.time >= 0.5 && this.buffer.length > 0) {
@@ -695,21 +699,35 @@ class alien {
     }
 
     if (this.activated && this.type=="doorman") {
-      let o = Math.sin(this.animation.distortionTime * 100);
+      let o = Math.sin(this.animation.distortionTime * 0.5);
       offset[this.orientation] += o;
     }
 
     offset[0] += xo;
     offset[1] += yo;
 
+    let x = this.animation.position.x - offset[0];
+    let y = this.animation.position.y - offset[1];
+    let width = this.img.width + this.animation.distortion[0];
+    let height = this.img.height + this.animation.distortion[1];
+
     drawImage({
       img: this.img,
-      x: this.animation.position.x - offset[0],
-      y: this.animation.position.y - offset[1],
+      x: x,
+      y: y,
       flip: this.animation.flip,
-      width: this.img.width + this.animation.distortion[0],
-      height: this.img.height + this.animation.distortion[1]
+      width: width,
+      height: height
     });
+
+    if (this.animation.colorTime > 0) {
+      let v = this.animation.color.value;
+      _c.globalCompositeOperation = "screen";
+      let opacity = Math.sin(this.animation.colorTime * 0.05);
+      setColor(_c, v, opacity);
+      _c.fillRect(x, y, width, height);
+      _c.globalCompositeOperation = "source-over";
+    }
   }
 
   // movement
@@ -981,6 +999,7 @@ class alien {
     if (this.instruction.index >= this.instruction.origin.length) this.instruction.index = 0;
 
     if (this.type=="doorman") {
+      this.animation.color.value = 94;
       playsound("doorman");
     }
 
