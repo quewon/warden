@@ -901,6 +901,9 @@ class alien {
                   if (alien.phys.weight > this.phys.power) {
                     if (!alien.activated) {
                       alien.activate();
+                      // if (this.type=="player") {
+                      //   scenes[this.scene].step();
+                      // }
                     }
                     allcols.push(alien);
                     break colmapsearch
