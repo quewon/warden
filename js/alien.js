@@ -27,6 +27,7 @@ class alien {
       flip: false,
       time: 0,
       distortion: [0, 0],
+      distortionTime: 0,
       duds: [],
       highlight: 94,
     };
@@ -613,6 +614,12 @@ class alien {
       this.getCamera();
     }
 
+    if (this.activated) {
+      this.animation.distortionTime++;
+    } else {
+      this.animation.distortionTime = 0;
+    }
+
     if (this.animation.time >= 0.5 && this.buffer.length > 0) {
       if (this.buffer[0][1] == 0) {
         this.squash();
@@ -677,28 +684,28 @@ class alien {
   }
 
   draw(xo, yo) {
-    let xoffset = 0;
-    let yoffset = 0;
-
-    if (this.activated && this.type=="doorman") {
-      this.animation.distortion[this.orientation] = Math.random() - 0.5;
-    }
+    let offset = [0, 0];
 
     if (this.buffer.length > 0) {
-      xoffset = this.animation.distortion[0] + this.buffer[0][0];
-      yoffset = this.animation.distortion[1] + this.buffer[0][1];
+      offset[0] = this.animation.distortion[0] + this.buffer[0][0];
+      offset[1] = this.animation.distortion[1] + this.buffer[0][1];
     } else {
-      xoffset = this.colmap[0].length * this.animation.distortion[0];
-      yoffset = this.colmap.length * this.animation.distortion[1];
+      offset[0] = this.colmap[0].length * this.animation.distortion[0];
+      offset[1] = this.colmap.length * this.animation.distortion[1];
     }
 
-    xoffset += xo;
-    yoffset += yo;
+    if (this.activated && this.type=="doorman") {
+      let o = Math.sin(this.animation.distortionTime * 100);
+      offset[this.orientation] += o;
+    }
+
+    offset[0] += xo;
+    offset[1] += yo;
 
     drawImage({
       img: this.img,
-      x: this.animation.position.x - xoffset,
-      y: this.animation.position.y - yoffset,
+      x: this.animation.position.x - offset[0],
+      y: this.animation.position.y - offset[1],
       flip: this.animation.flip,
       width: this.img.width + this.animation.distortion[0],
       height: this.img.height + this.animation.distortion[1]
@@ -871,10 +878,6 @@ class alien {
                 y + (ty*8) == apy + (ay*8)
               ) {
                 if (input && t) {
-                  if (alien.type=="player" && this.id==37) {
-                    console.log("player move away from doorman");
-                  }
-
                   // if alien is moving
                   // and is headed to a different tile, then that
                   // should be accounted for
@@ -896,7 +899,9 @@ class alien {
                   }
 
                   if (alien.phys.weight > this.phys.power) {
-                    if (!alien.activated) alien.activate();
+                    if (!alien.activated) {
+                      alien.activate();
+                    }
                     allcols.push(alien);
                     break colmapsearch
                   }
@@ -1229,6 +1234,18 @@ class doorman extends alien {
 
     this.colmap = map;
     this.img = image;
+  }
+
+  close() {
+    let p = this.instruction.origin[1];
+    this.setPosition(p.x, p.y);
+    this.instruction.index = 1;
+  }
+
+  open() {
+    let p = this.instruction.origin[0];
+    this.setPosition(p.x, p.y);
+    this.instruction.index = 0;
   }
 }
 

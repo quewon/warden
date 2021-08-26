@@ -245,6 +245,11 @@ class scene {
         Math.round(p[0]/8)*8,
         Math.round(p[1]/8)*8
       );
+      if (Math.random() >= 0.5) {
+        a.close()
+      } else {
+        a.open()
+      }
     }
   }
 
