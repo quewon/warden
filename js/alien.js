@@ -349,6 +349,7 @@ class alien {
         } else {
           ydiff = 0;
         }
+
         this.pushbuffer([xdiff, ydiff]);
         break;
 
@@ -860,17 +861,45 @@ class alien {
               let apx = alien.position.x;
               let apy = alien.position.y;
 
+              // if (alien.animation.time != 0 && alien.buffer.length > 0) {
+              //   apx += alien.buffer[0][0]*8;
+              //   apy += apy+alien.buffer[0][1]*8;
+              // }
+
               if (
                 x + (tx*8) == apx + (ax*8) &&
                 y + (ty*8) == apy + (ay*8)
               ) {
                 if (input && t) {
+                  if (alien.type=="player" && this.id==37) {
+                    console.log("player move away from doorman");
+                  }
+
+                  // if alien is moving
+                  // and is headed to a different tile, then that
+                  // should be accounted for
+
+                  // alien is moving
+                  if (
+                    alien.animation.time != 0 &&
+                    alien.buffer.length > 0
+                  ) {
+                    let adx = apx+alien.buffer[0][0]*8;
+                    let ady = apy+alien.buffer[0][1]*8;
+
+                    if ( // headed to the different tiles
+                      x + (tx*8) != adx + (ax*8) ||
+                      y + (ty*8) != ady + (ay*8)
+                    ) {
+                      continue;
+                    }
+                  }
+
                   if (alien.phys.weight > this.phys.power) {
                     if (!alien.activated) alien.activate();
                     allcols.push(alien);
                     break colmapsearch
                   }
-
                   alien.colignore = this.id;
                   let nudge = alien.nudge(input, t);
                   if (nudge) {
@@ -884,7 +913,7 @@ class alien {
                   allcols.push(alien);
                   break colmapsearch
                 }
-              } else if ( //alien is moving
+              } else if ( //this and alien is moving
                 alien.animation.time != 0 &&
                 alien.buffer.length > 0 &&
                 input && t
@@ -943,6 +972,10 @@ class alien {
     this.instruction.index++;
     if (this.instruction.index >= this.instruction.origin.length) this.instruction.index = 0;
 
+    if (this.type=="doorman") {
+      playsound("doorman");
+    }
+
     console.log(this.id+" activated");
   }
 }
@@ -962,6 +995,9 @@ class doorman extends alien {
     if ('animation' in this) {
       this.animation.position = { x:x, y:y };
     }
+  }
+
+  setInstruction(x, y) {
     let origin2 = [x, y];
     origin2[this.orientation] += 24;
     this.instruction = {

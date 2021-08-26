@@ -6,7 +6,7 @@ class scene {
     this.camera = {};
     this.init(p.src);
 
-    this.ambientLight = p.ambientLight || 0.2; //max: 0.99, min: 0.001 | 0.2, 0.6
+    this.ambientLight = p.ambientLight || 0.99; //max: 0.99, min: 0.001 | 0.2, 0.6
   }
 
   init(src) {
@@ -238,6 +238,10 @@ class scene {
         orientation: p[2]
       });
       a.setPosition(
+        Math.round(p[0]/8)*8,
+        Math.round(p[1]/8)*8
+      );
+      a.setInstruction(
         Math.round(p[0]/8)*8,
         Math.round(p[1]/8)*8
       );

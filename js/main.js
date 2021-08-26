@@ -68,6 +68,10 @@ function load_sounds() {
       new Howl({src: "sound/steps/8.wav"}),
       new Howl({src: "sound/steps/9.wav"}),
     ],
+    doorman: [
+      new Howl({src: "sound/aliens/doorman1.wav"}),
+      new Howl({src: "sound/aliens/doorman2.wav"})
+    ],
   };
 
   let check = setInterval(function() {
