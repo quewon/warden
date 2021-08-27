@@ -42,6 +42,7 @@ class alien {
 
     this.reach = 1;
     this.activated = false;
+    this.fx = [];
 
     // element
     if (this.type in bank.dialog) {
@@ -318,13 +319,18 @@ class alien {
   // turn/step/move
 
   step() {
+    let move;
     switch (this.type) {
 
       case "player":
         break;
 
       case "wanderer":
-        let move = [0, 0];
+        if (this.fx.includes("stone")) {
+          break;
+        }
+
+        move = [0, 0];
 
         for (let i in scenes[this.scene].aliens) {
           switch (Math.random() * 4 | 0) {
@@ -346,7 +352,33 @@ class alien {
         if (this.colliding(this.position.x+move[0]*8, this.position.y+move[1]*8).length == 0) {
           this.move(move[0], move[1]);
         }
+        break;
 
+      case "danger":
+        if (this.fx.includes("stone")) {
+          break;
+        }
+
+        move = [0, 0];
+
+        for (let i in scenes[this.scene].aliens) {
+          switch (Math.random() * 4 | 0) {
+            case 0:
+              move = [0, 1];
+              break;
+            case 1:
+              move = [0, -1];
+              break;
+            case 2:
+              move = [1, 0];
+              break;
+            case 3:
+              move = [-1, 0];
+              break;
+          }
+        }
+
+        this.move(move[0], move[1]);
         break;
 
       case "doorman":
@@ -387,7 +419,7 @@ class alien {
           this.deactivate();
         }
         break;
-      case "wanderer":
+      default:
         this.deactivate();
         break;
     }
@@ -942,6 +974,10 @@ class alien {
 
                   if (!alien.activated) {
                     alien.activate();
+                    if ('affect' in this) {
+                      this.affect(alien);
+                      console.log(this.id, alien.id);
+                    }
                   }
                   if (alien.phys.weight > this.phys.power) {
                     allcols.push(alien);
@@ -1024,8 +1060,6 @@ class alien {
         playsound("doorman");
         break;
     }
-
-    console.log(this.id+" activated");
   }
 
   deactivate() {
@@ -1415,6 +1449,19 @@ class togglebox extends alien {
     console.log(this.id+" activated");
   }
 }
+
+var dangers = {
+  medusa: class extends alien {
+    constructor(P) {
+      super(P);
+      this.type = "danger";
+    }
+
+    affect(alien) {
+      alien.fx.push("stone");
+    }
+  }
+};
 
 function alienAge() {
   return 10

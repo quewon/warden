@@ -13,6 +13,7 @@ var bank = {
   glasseye: {
     name: "glasseye",
     src: "glasseye",
+    danger: ["medusa"],
   },
   lightswitch: {
     src: "lightswitch.png",
@@ -22,6 +23,6 @@ var bank = {
 
   dialog: {
     doorman: ["❤️", "💖", "💕", "💓"],
-    lightswitch: ["💡"]
+    lightswitch: ["💡"],
   }
 };

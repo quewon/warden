@@ -7,6 +7,8 @@ class scene {
     this.init(p.src);
 
     this.ambientLight = p.ambientLight || 0.001; //max: 0.99, min: 0.01 | 0.2, 0.6
+
+    this.danger = p.danger || null;
   }
 
   init(src) {
@@ -219,11 +221,24 @@ class scene {
   }
 
   spawnAliens() {
+    let danger;
+    if (this.danger) {
+      danger = Math.random() * this.alienspawns.length | 0;
+    }
+
     for (let c in this.alienspawns) {
       let coord = this.alienspawns[c];
-      let a = new alien({
-        scene: this.name,
-      });
+      let a;
+      if (c == danger) {
+        a = new dangers[this.danger[0]]({
+              scene: this.name,
+            });
+        console.log(c);
+      } else {
+        a = new alien({
+              scene: this.name,
+            });
+      }
       let newx = coord[0] + 1.5*8 - a.colmap[0].length*4;
       let newy = coord[1] + 1.5*8 - a.colmap.length*4;
       let rx = newx >= this.colmap[0].length ? "ceil" : "floor";
