@@ -1,33 +1,20 @@
 title should be more..... fun !!!!!!!!!!!!!
 
+a roguelike where the goal is to get troublesome aliens into a cage
+while protecting everything else
 
-a procedurally generated puzzle game?
-
-
-you gotta give the doors a little kiss to open them
-
-
+objects that you can push around
 
 'dangerous' aliens that:
-- clone themselves
-- steal words
-- hijack your controls
-- hijack music
-- speak??
+- set things on fire
+- turn aliens to stone
 - turn aliens into zombies
-- mind control aliens
-just wanna get them under control. no flying them out of airlocks.
-some of these 'dangerous' aliens are misunderstood.
+
+you just wanna get them under control.
 
 the experience:
-- goal: collecting information and money.
+- goal: collecting information and money
 - a small number of recurring characters
-
-a tutorial that teaches you how to teach yourself the rules of the game, as well as forming a sort of backstory like
-you were a kid on a ship hijacked by dumb space pirates
-and they dragged in this crazy alien to get rid of everybody
-but they didn’t know how to control it, and so they got attacked as well
-but you survive by figuring out what it wants, what its nature is.
 
 consistencies:
 - everything on a grid
@@ -38,13 +25,6 @@ consistencies:
   ❓
   👎
 - doors are hardy aliens
-
-game loop:
-1. choose mission
-2. do mission
-3. unlock missions, characters, lore, music(?)
-
-4. take on the Big Mission
 
 big ball - cargo
   small
@@ -65,18 +45,22 @@ glass eye - cargo/passenger
   medium
   sleek tech
 
-mysterious elements... dark rooms with intimate music and characters
-
-
 to do
 
 [x] random aliens
 [x] movement, collision, animation
 [x] lighting and shadows
-[ ] pulling aliens
 [ ] ships
+[ ] a 'restart level' button
 
 [ ] ray collision is leaky
 
 [ ] configurable player speed
 [ ] configurable palette
+
+
+x aliens
+x doormen
+information blocks
+x light switches
+

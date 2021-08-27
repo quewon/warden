@@ -2,14 +2,14 @@ class alien {
   constructor(p) {
     p = p || {};
     this.id = ref.length;
-    this.name = p.name || alienName();
     this.age = p.age || alienAge();
     this.type = p.type || "wanderer";
+
     if (p.src && this.type != "doorman") {
       let image = imgs[p.src];
-      this.img = spriteFilter(image);
+      this.img = spriteFilter(image, this.type);
     } else {
-      this.createImage();
+      this.createImage(this.type);
     }
 
     this.state = "idle";
@@ -28,7 +28,7 @@ class alien {
       time: 0,
       distortion: [0, 0],
       distortionTime: 0,
-      color: { value: 52, opacity: 0 },
+      color: { value: 52, on: false },
       colorTime: 0,
       duds: [],
       highlight: 94,
@@ -41,8 +41,21 @@ class alien {
     }
 
     this.reach = 1;
-    this.interactable = null;
     this.activated = false;
+
+    // element
+    if (this.type in bank.dialog) {
+      this.dialog = G.arrayRandom(bank.dialog[this.type]);
+    } else {
+      this.dialog = "";
+    }
+    this.el = document.createElement("div");
+    this.el.style.width = this.colmap[0].length*8*Config.viewportScale+"px";
+    this.el.style.height = 8*Config.viewportScale+"px";
+    this.el.className = "dialog invisible";
+    let nt = document.createElement("div");
+    this.el.appendChild(nt);
+    _dialog.appendChild(this.el);
 
     ref.push(this);
   }
@@ -371,8 +384,11 @@ class alien {
       case "doorman":
         let goal = this.instruction.origin[this.instruction.index];
         if (this.position.x == goal.x && this.position.y == goal.y) {
-          this.activated = false;
+          this.deactivate();
         }
+        break;
+      case "wanderer":
+        this.deactivate();
         break;
     }
   }
@@ -616,7 +632,7 @@ class alien {
       this.getCamera();
     }
 
-    if (this.activated) {
+    if (this.activated && this.animation.color.on) {
       this.animation.distortionTime++;
       this.animation.colorTime++;
     } else {
@@ -698,7 +714,7 @@ class alien {
       offset[1] = this.colmap.length * this.animation.distortion[1];
     }
 
-    if (this.activated && this.type=="doorman") {
+    if (this.activated && this.animation.distortionTime > 0) {
       let o = Math.sin(this.animation.distortionTime * 0.5);
       offset[this.orientation] += o;
     }
@@ -720,14 +736,22 @@ class alien {
       height: height
     });
 
-    if (this.animation.colorTime > 0) {
+    if (this.animation.colorTime > 0 && this.animation.color.on) {
       let v = this.animation.color.value;
       _c.globalCompositeOperation = "screen";
-      let opacity = Math.sin(this.animation.colorTime * 0.05);
+      let opacity = Math.sin(this.animation.colorTime * 0.05) + 0.5;
       setColor(_c, v, opacity);
       _c.fillRect(x, y, width, height);
       _c.globalCompositeOperation = "source-over";
     }
+
+    // dialogue
+
+    x *= Config.viewportScale;
+    y *= Config.viewportScale;
+
+    this.el.style.left = x+"px";
+    this.el.style.top = y+"px";
   }
 
   // movement
@@ -916,13 +940,10 @@ class alien {
                     }
                   }
 
+                  if (!alien.activated) {
+                    alien.activate();
+                  }
                   if (alien.phys.weight > this.phys.power) {
-                    if (!alien.activated) {
-                      alien.activate();
-                      // if (this.type=="player") {
-                      //   scenes[this.scene].step();
-                      // }
-                    }
                     allcols.push(alien);
                     break colmapsearch
                   }
@@ -986,24 +1007,34 @@ class alien {
     }
   }
 
-  interact() {
-    if (this.interactable == null) return;
-
-    console.log("interacted with "+this.interactable.id);
-  }
-
   activate() {
     this.activated = true;
+    if(this.dialog != "") {
+      this.el.querySelector("div").textContent = this.dialog;
+      this.el.classList.remove("invisible");
+    }
 
-    this.instruction.index++;
-    if (this.instruction.index >= this.instruction.origin.length) this.instruction.index = 0;
+    switch (this.type) {
+      case "doorman":
+        this.instruction.index++;
+        if (this.instruction.index >= this.instruction.origin.length) this.instruction.index = 0;
 
-    if (this.type=="doorman") {
-      this.animation.color.value = 94;
-      playsound("doorman");
+        this.animation.color.value = 94;
+        this.animation.color.on = true;
+        playsound("doorman");
+        break;
     }
 
     console.log(this.id+" activated");
+  }
+
+  deactivate() {
+    this.activated = false;
+    this.animation.color.on = false;
+    if(this.dialog != "") {
+      this.el.classList.add("invisible");
+      this.dialog = G.arrayRandom(bank.dialog[this.type]);
+    }
   }
 }
 
@@ -1015,6 +1046,9 @@ class doorman extends alien {
     this.phys.weight = 2;
     this.changeImage(this.orientation);
     this.animation.highlight = 52;
+
+    this.dialog = G.arrayRandom(bank.dialog.doorman);
+    this.el.style.width = this.colmap[0].length*8*Config.viewportScale+"px";
   }
 
   setPosition(x, y) {
@@ -1271,8 +1305,115 @@ class doorman extends alien {
   }
 }
 
-function alienName() {
-  return "lol"
+class togglebox extends alien {
+  constructor(P) {
+    super(P);
+    this.toggle = {
+      time: 0,
+      buffer: 10,
+    }
+  }
+
+  bonk() {
+    this.animation.distortion = [0, -1];
+  }
+
+  update() {
+    if (this.activated && this.animation.color.on) {
+      this.animation.distortionTime++;
+      this.animation.colorTime++;
+    } else {
+      this.animation.distortionTime = 0;
+      this.animation.colorTime = 0;
+    }
+
+    if (this.animation.time >= 0.5 && this.buffer.length > 0) {
+      if (this.buffer[0][1] == 0) {
+        this.squash();
+      } else {
+        this.stretch();
+      }
+    } else {
+      this.proportional();
+    }
+
+    if (this.activated) {
+      this.toggle.time--;
+      if (this.toggle.time >= 8) this.bonk();
+      else if (this.toggle.time <= 0) this.deactivate();
+    }
+
+    if (this.animation.time < 1 && this.buffer.length > 0) {
+      let speed = this.speed;
+
+      if (this.buffer.length > 2) {
+        speed += Math.pow(this.buffer.length-1, 1.5) * this.speed;
+      } else {
+        speed += this.speed;
+      }
+
+      let t = this.animation.time + speed;
+      if (t > 1) t = 1;
+
+      let nudge = this.nudge(this.buffer[0], t);
+
+      if (nudge) {
+        if (this.animation.time == 0) {
+          if (this.type=="player") scenes[this.scene].step();
+        }
+
+        this.animation.time = t;
+      } else {
+        this.buffer.shift();
+      }
+    } 
+    else if (this.buffer.length > 0) {
+      this.position = {
+        x: this.animation.position.x,
+        y: this.animation.position.y
+      };
+      this.buffer.shift();
+      this.animation.time = 0;
+
+      this.endStep();
+    }
+
+    this.findInteractable();
+    this.colignore = null;
+  }
+
+  activate() {
+    this.activated = true;
+    this.toggle.time = this.toggle.buffer;
+    if(this.dialog != "") {
+      this.el.querySelector("div").textContent = this.dialog;
+      this.el.classList.remove("invisible");
+    }
+
+    switch (this.type) {
+      case "lightswitch":
+        let light = scenes[this.scene].ambientLight;
+        switch (light) {
+          case 0.001:
+            light = 0.2;
+            break;
+          case 0.2:
+            light = 0.6;
+            break;
+          case 0.6:
+            light = 0.99;
+            break;
+          case 0.99:
+            light = 0.001;
+            break;
+        }
+        scenes[this.scene].ambientLight = light;
+        playsound("lightswitch");
+        break;
+    }
+
+    console.log(this.id+" activated");
+  }
 }
 
 function alienAge() {

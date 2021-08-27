@@ -6,7 +6,7 @@ class scene {
     this.camera = {};
     this.init(p.src);
 
-    this.ambientLight = p.ambientLight || 0.99; //max: 0.99, min: 0.001 | 0.2, 0.6
+    this.ambientLight = p.ambientLight || 0.001; //max: 0.99, min: 0.01 | 0.2, 0.6
   }
 
   init(src) {
@@ -73,6 +73,9 @@ class scene {
                 break;
               case "doormanh":
                 this.doormanspawns.push([x*8, y*8, 1]);
+                break;
+              case "lightswitch":
+                this.lightswitchSpawn = { x: x*8, y: y*8 };
                 break;
             }
 
@@ -250,6 +253,12 @@ class scene {
       } else {
         a.open()
       }
+    }
+
+    if (this.lightswitchSpawn) {
+      let lightswitch = new togglebox(bank.lightswitch);
+      lightswitch.moveScene(this.name);
+      lightswitch.setPosition(this.lightswitchSpawn.x, this.lightswitchSpawn.y);
     }
   }
 

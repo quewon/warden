@@ -1,6 +1,5 @@
 var bank = {
   player: {
-    name: "you",
     src: "player.png",
     scene: "glasseye",
     type: "player",
@@ -14,5 +13,15 @@ var bank = {
   glasseye: {
     name: "glasseye",
     src: "glasseye",
+  },
+  lightswitch: {
+    src: "lightswitch.png",
+    type: "lightswitch",
+    colmap: [[1]],
+  },
+
+  dialog: {
+    doorman: ["❤️", "💖", "💕", "💓"],
+    lightswitch: ["💡"]
   }
 };

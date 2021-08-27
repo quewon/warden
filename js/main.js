@@ -1,4 +1,4 @@
-var _canvas, _extra, _debug;
+var _canvas, _extra, _debug, _dialog;
 var _c, _e, _d;
 
 var player;
@@ -21,6 +21,7 @@ function load_imgs() {
 
   var toload = [
     "player.png",
+    "lightswitch.png",
 
     "parts/right shoulders.png",
     "parts/heads.png",
@@ -72,6 +73,11 @@ function load_sounds() {
       new Howl({src: "sound/aliens/doorman1.wav"}),
       new Howl({src: "sound/aliens/doorman2.wav"})
     ],
+    lightswitch: [
+      new Howl({src: "sound/mechanical/tick.wav", volume:0.3}),
+      new Howl({src: "sound/mechanical/tap.wav", volume:0.3}),
+      new Howl({src: "sound/mechanical/click.wav", volume:0.3}),
+    ]
   };
 
   let check = setInterval(function() {
@@ -107,8 +113,10 @@ function init() {
   };
 
   document.documentElement.style.setProperty("--bg", "rgb("+Config.filter[52][0]+","+Config.filter[52][1]+","+Config.filter[52][2]+")");
+  document.documentElement.style.setProperty("--color", "rgb("+Config.filter[226][0]+","+Config.filter[226][1]+","+Config.filter[226][2]+")");
 
   _canvas = document.getElementById("canvas");
+  _dialog = document.getElementById("dialog");
   _extra = document.getElementById("extra");
   _debug = document.getElementById("debug");
   _c = _canvas.getContext("2d");
@@ -123,6 +131,8 @@ function init() {
   _debug.height = Config.viewportHeight * 8;
   _debug.style.width = _canvas.width * Config.viewportScale + "px";
   _debug.style.height = _canvas.height * Config.viewportScale + "px";
+  _dialog.style.width = _canvas.width * Config.viewportScale + "px";
+  _dialog.style.height = _canvas.height * Config.viewportScale + "px";
 
   _c.imageSmoothingEnabled = Config.imageSmoothingEnabled;
 
@@ -198,14 +208,18 @@ function update() {
 
 //
 
-function spriteFilter(image) {
+function spriteFilter(image, type) {
+  type = type || "player";
+
   _extra.width = image.width;
   _extra.height = image.height;
   _e.drawImage(image, 0, 0);
   let imgdata = dataFilter(_e.getImageData(0, 0, _extra.width, _extra.height));
   _e.putImageData(imgdata, 0, 0);
 
-  alienTextures[Config.alienTexture]();
+  if (type=="player") {
+    alienTextures[Config.alienTexture]();
+  }
 
   image.src = _extra.toDataURL();
 
