@@ -74,9 +74,8 @@ function load_sounds() {
       new Howl({src: "sound/aliens/doorman2.wav"})
     ],
     lightswitch: [
-      new Howl({src: "sound/mechanical/tick.wav", volume:0.3}),
-      new Howl({src: "sound/mechanical/tap.wav", volume:0.3}),
-      new Howl({src: "sound/mechanical/click.wav", volume:0.3}),
+      new Howl({src: "sound/mechanical/tick.wav"}),
+      new Howl({src: "sound/mechanical/click.wav"}),
     ]
   };
 
@@ -288,8 +287,11 @@ function lerp(start, end, t) {
   return start * (1-t) + end * t
 }
 
-function playsound(name) {
-  G.arrayRandom(sounds[name]).play();
+function playsound(name, volume) {
+  let sound = G.arrayRandom(sounds[name]);
+  volume = volume || 1;
+  sound.volume(volume);
+  sound.play();
 }
 
 function setColor(context, value, opacity) {

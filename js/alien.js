@@ -316,6 +316,20 @@ class alien {
     this.scene = s;
   }
 
+  sound(name) {
+    let volume = 1;
+    if (this.type != "player") {
+      // get distance to player
+
+      let a = this.position.x + this.img.width/2 - player.position.x + 4;
+      let b = this.position.y + this.img.height/2 - player.position.y + 4;
+      let dist = Math.sqrt( a*a + b*b );
+
+      volume = 1 - dist/1000;
+    }
+    playsound(name, volume);
+  }
+
   // turn/step/move
 
   step() {
@@ -404,7 +418,7 @@ class alien {
     }
 
     if (this.type=="player") {
-      playsound("step");
+      this.sound("step");
     }
   }
 
@@ -547,7 +561,7 @@ class alien {
         distanced.push({
           x: x*8,
           y: y*8,
-          dist: Math.sqrt(Math.pow(a.x-x*8,2), Math.pow(a.y-y*8,2)),
+          dist: Math.sqrt((a.x-x*8)*(a.x-x*8), (a.y-y*8)*(a.y-y*8)),
         });
       }
     }
@@ -973,10 +987,9 @@ class alien {
                   }
 
                   if (!alien.activated) {
-                    alien.activate();
+                    alien.activate(this);
                     if ('affect' in this) {
                       this.affect(alien);
-                      console.log(this.id, alien.id);
                     }
                   }
                   if (alien.phys.weight > this.phys.power) {
@@ -1043,7 +1056,7 @@ class alien {
     }
   }
 
-  activate() {
+  activate(activator) {
     this.activated = true;
     if(this.dialog != "") {
       this.el.querySelector("div").textContent = this.dialog;
@@ -1057,7 +1070,7 @@ class alien {
 
         this.animation.color.value = 94;
         this.animation.color.on = true;
-        playsound("doorman");
+        activator.sound("doorman");
         break;
     }
   }
@@ -1416,7 +1429,7 @@ class togglebox extends alien {
     this.colignore = null;
   }
 
-  activate() {
+  activate(activator) {
     this.activated = true;
     this.toggle.time = this.toggle.buffer;
     if(this.dialog != "") {
@@ -1442,11 +1455,9 @@ class togglebox extends alien {
             break;
         }
         scenes[this.scene].ambientLight = light;
-        playsound("lightswitch");
+        activator.sound("lightswitch");
         break;
     }
-
-    console.log(this.id+" activated");
   }
 }
 
