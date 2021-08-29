@@ -6,7 +6,7 @@ class scene {
     this.camera = {};
     this.init(p.src);
 
-    this.ambientLight = p.ambientLight || 0.001; //max: 0.99, min: 0.01 | 0.2, 0.6
+    this.ambientLight = p.ambientLight || G.arrayRandom(Config.lightLevels);
 
     this.danger = p.danger || null;
   }

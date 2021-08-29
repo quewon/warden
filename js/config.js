@@ -6,6 +6,8 @@ var Config = {
     right: ["ArrowRight", "d"],
   },
 
+  lightLevels: [0.001, 0.2, 0.6, 0.99],
+
   alienTexture: "wavy",
   bgTexture: "carpet",
   filter: {

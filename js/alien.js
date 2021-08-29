@@ -336,10 +336,15 @@ class alien {
         let b = (this.animation.position.y + this.img.height/2) - (player.animation.position.y + 4);
         let dist = Math.sqrt( a*a + b*b );
 
-        pan = a;
-
         volume = 1 - dist/100;
         if (volume < 0) volume = 0;
+
+        if (a < 0) {
+          pan = -1;
+        } else if (a > 0) {
+          pan = 1;
+        }
+        pan *= 1 - volume;
       }
     }
 
