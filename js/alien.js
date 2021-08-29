@@ -5,10 +5,14 @@ class alien {
     this.type = p.type || "wanderer";
 
     if (p.src && this.type != "doorman") {
-      let image = imgs[p.src];
-      this.img = spriteFilter(image, this.type);
+      if (p.src in imgs_filtered) {
+        this.img = imgs_filtered[p.src];
+      } else {
+        this.img = spriteFilter(imgs[p.src], this.type);
+        imgs_filtered[p.src] = this.img;
+      }
     } else {
-      this.createImage(this.type);
+      this.createImage();
     }
 
     this.state = "idle";

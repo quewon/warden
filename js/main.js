@@ -8,7 +8,7 @@ var alienParts;
 load();
 
 // var clock;
-var imgs, sounds;
+var imgs, imgs_filtered, sounds;
 
 var ref = [];
 
@@ -36,6 +36,7 @@ function load_imgs() {
   ];
 
   imgs = {};
+  imgs_filtered = {};
 
   var checklist = 0;
 
