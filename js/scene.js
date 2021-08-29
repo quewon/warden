@@ -2,7 +2,6 @@ class scene {
   constructor(p) {
     this.name = p.name;
     this.aliens = p.aliens || [];
-    this.static = p.static || [];
     this.camera = {};
     this.init(p.src);
 

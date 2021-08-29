@@ -78,15 +78,6 @@ function load_sounds() {
       new Howl({src: "sound/mechanical/tick.wav"}),
       new Howl({src: "sound/mechanical/click.wav"}),
     ],
-    wanderer: [
-      new Howl({src: "sound/steps/5.wav"}),
-    ],
-    medusa: [
-      new Howl({src: "sound/steps/9.wav"}),
-    ],
-    stone: [
-      new Howl({src: "sound/steps/0.wav"}),
-    ],
 
     piano: [
       new Howl({src: "sound/music/piano.wav", loop: true}),
@@ -186,11 +177,6 @@ function init() {
   scenes.glasseye.spawnAliens();
 
   player = new alien(bank.player);
-  player.jobs = {
-    sum: 0,
-    reputation: 0,
-    connections: [],
-  };
 
   //
 

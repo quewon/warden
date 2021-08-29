@@ -16,7 +16,6 @@ class alien {
     }
 
     this.state = "idle";
-    this.moveScene(p.scene || "hub");
 
     if (!this.colmap) this.colmap = p.colmap;
     if (this.type=="player") {
@@ -38,6 +37,7 @@ class alien {
     };
     this.buffer = [];
     this.speed = 0.06;
+    this.moveScene(p.scene || "hub");
     if (this.type=="player") {
       this.getCamera();
       this.findDuds();
@@ -315,14 +315,26 @@ class alien {
   }
 
   moveScene(s) {
-    scenes[s].aliens.push(this.id);
+    if ('scene' in this) {
+      const aliens = scenes[this.scene].aliens;
+      scenes[this.scene].aliens.splice(aliens.indexOf(this.id), 1);
+    }
+    scenes[s].aliens.push(this.id)
     this.scene = s;
+    if (this.type=="player") {
+      const spawn = scenes[s].playerSpawn;
+      this.setPosition(spawn.x, spawn.y);
+      this.getCamera();
+      this.findDuds();
+    }
   }
 
   sound(name) {
-    this.sfx = G.arrayRandom(sounds[name]);
-    this.updateSound();
-    this.sfx.play();
+    if (name in sounds) {
+      this.sfx = G.arrayRandom(sounds[name]);
+      this.updateSound();
+      this.sfx.play();
+    }
   }
 
   updateSound() {
@@ -1018,9 +1030,9 @@ class alien {
 
                   if (!alien.activated) {
                     alien.activate(this);
-                  }
-                  if ('affect' in this) {
-                    this.affect(alien);
+                    if ('affect' in this) {
+                      this.affect(alien);
+                    }
                   }
 
                   if (alien.phys.weight > this.phys.power) {
@@ -1424,6 +1436,7 @@ class togglebox extends alien {
 
     if (this.type=="jukebox") {
       this.music = P.music || null;
+      this.sound(this.music);
     }
   }
 }
