@@ -1424,7 +1424,6 @@ class togglebox extends alien {
 
     if (this.type=="jukebox") {
       this.music = P.music || null;
-      this.sound(this.music);
     }
   }
 }
