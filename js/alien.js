@@ -2,7 +2,6 @@ class alien {
   constructor(p) {
     p = p || {};
     this.id = ref.length;
-    this.age = p.age || alienAge();
     this.type = p.type || "wanderer";
 
     if (p.src && this.type != "doorman") {
@@ -42,6 +41,7 @@ class alien {
 
     this.reach = 1;
     this.activated = false;
+    this.sfx;
 
     // element
     if (this.type in bank.dialog) {
@@ -316,17 +316,35 @@ class alien {
   }
 
   sound(name) {
+    this.sfx = G.arrayRandom(sounds[name]);
+    this.updateSound();
+    this.sfx.play();
+  }
+
+  updateSound() {
+    if (!this.sfx) return;
+
     let volume = 1;
+    let pan = 0;
     if (this.type != "player") {
-      // get distance to player
+      if (!player) {
+        volume = 0;
+      } else if (player.scene == this.scene) {
+        // get distance to player
 
-      let a = this.position.x + this.img.width/2 - player.position.x + 4;
-      let b = this.position.y + this.img.height/2 - player.position.y + 4;
-      let dist = Math.sqrt( a*a + b*b );
+        let a = (this.animation.position.x + this.img.width/2) - (player.animation.position.x + 4);
+        let b = (this.animation.position.y + this.img.height/2) - (player.animation.position.y + 4);
+        let dist = Math.sqrt( a*a + b*b );
 
-      volume = 1 - dist/1000;
+        pan = a;
+
+        volume = 1 - dist/100;
+        if (volume < 0) volume = 0;
+      }
     }
-    playsound(name, volume);
+
+    this.sfx.stereo(pan);
+    this.sfx.volume(volume);
   }
 
   // turn/step/move
@@ -363,7 +381,7 @@ class alien {
         }
         break;
 
-      case "danger":
+      case "medusa":
         move = [0, 0];
 
         for (let i in scenes[this.scene].aliens) {
@@ -405,7 +423,6 @@ class alien {
 
         this.pushbuffer([xdiff, ydiff]);
         break;
-
     }
 
     if (this.type=="player") {
@@ -687,6 +704,14 @@ class alien {
       this.proportional();
     }
 
+    if ('toggle' in this) {
+      if (this.activated) {
+        this.toggle.time--;
+        if (this.toggle.time >= 8) this.bonk();
+        else if (this.toggle.time <= 0) this.deactivate();
+      }
+    }
+
     if (this.animation.time < 1 && this.buffer.length > 0) {
       let speed = this.speed;
 
@@ -724,6 +749,7 @@ class alien {
 
     this.findInteractable();
     this.colignore = null;
+    this.updateSound();
   }
 
   squash() {
@@ -732,6 +758,10 @@ class alien {
 
   stretch() {
     this.animation.distortion = [-1, 1];
+  }
+
+  bonk() {
+    this.animation.distortion = [0, -1];
   }
  
   proportional() {
@@ -979,11 +1009,11 @@ class alien {
 
                   if (!alien.activated) {
                     alien.activate(this);
-                    if ('affect' in this) {
-                      this.affect(alien);
-                      console.log(alien.id);
-                    }
                   }
+                  if ('affect' in this) {
+                    this.affect(alien);
+                  }
+
                   if (alien.phys.weight > this.phys.power) {
                     allcols.push(alien);
                     break colmapsearch
@@ -1049,9 +1079,8 @@ class alien {
   }
 
   activate(activator) {
-    if (this.activated) return;
-
     this.activated = true;
+    if ('toggle' in this) this.toggle.time = this.toggle.buffer;
     if(this.type in bank.dialog) {
       this.el.querySelector("div").textContent = G.arrayRandom(bank.dialog[this.type]);
       this.el.classList.remove("invisible");
@@ -1066,6 +1095,36 @@ class alien {
         this.animation.color.blendmode = "screen";
         this.animation.color.on = true;
         activator.sound("doorman");
+        break;
+      case "lightswitch":
+        let light = scenes[this.scene].ambientLight;
+        switch (light) {
+          case 0.001:
+            light = 0.2;
+            break;
+          case 0.2:
+            light = 0.6;
+            break;
+          case 0.6:
+            light = 0.99;
+            break;
+          case 0.99:
+            light = 0.001;
+            break;
+        }
+        scenes[this.scene].ambientLight = light;
+        activator.sound("switch");
+        break;
+      case "jukebox":
+        activator.sound("switch");
+        if (this.sfx.playing()) {
+          this.sfx.pause();
+        } else {
+          this.sound(this.music);
+        }
+        break;
+      default:
+        this.sound(this.type);
         break;
     }
   }
@@ -1352,105 +1411,11 @@ class togglebox extends alien {
     this.toggle = {
       time: 0,
       buffer: 10,
-    }
-  }
+    };
 
-  bonk() {
-    this.animation.distortion = [0, -1];
-  }
-
-  update() {
-    if (this.activated && this.animation.color.on) {
-      this.animation.distortionTime++;
-      this.animation.colorTime++;
-    } else {
-      this.animation.distortionTime = 0;
-      this.animation.colorTime = 0;
-    }
-
-    if (this.animation.time >= 0.5 && this.buffer.length > 0) {
-      if (this.buffer[0][1] == 0) {
-        this.squash();
-      } else {
-        this.stretch();
-      }
-    } else {
-      this.proportional();
-    }
-
-    if (this.activated) {
-      this.toggle.time--;
-      if (this.toggle.time >= 8) this.bonk();
-      else if (this.toggle.time <= 0) this.deactivate();
-    }
-
-    if (this.animation.time < 1 && this.buffer.length > 0) {
-      let speed = this.speed;
-
-      if (this.buffer.length > 2) {
-        speed += Math.pow(this.buffer.length-1, 1.5) * this.speed;
-      } else {
-        speed += this.speed;
-      }
-
-      let t = this.animation.time + speed;
-      if (t > 1) t = 1;
-
-      let nudge = this.nudge(this.buffer[0], t);
-
-      if (nudge) {
-        if (this.animation.time == 0) {
-          if (this.type=="player") scenes[this.scene].step();
-        }
-
-        this.animation.time = t;
-      } else {
-        this.buffer.shift();
-      }
-    } 
-    else if (this.buffer.length > 0) {
-      this.position = {
-        x: this.animation.position.x,
-        y: this.animation.position.y
-      };
-      this.buffer.shift();
-      this.animation.time = 0;
-
-      this.endStep();
-    }
-
-    this.findInteractable();
-    this.colignore = null;
-  }
-
-  activate(activator) {
-    this.activated = true;
-    this.toggle.time = this.toggle.buffer;
-    if(this.dialog != "") {
-      this.el.querySelector("div").textContent = this.dialog;
-      this.el.classList.remove("invisible");
-    }
-
-    switch (this.type) {
-      case "lightswitch":
-        let light = scenes[this.scene].ambientLight;
-        switch (light) {
-          case 0.001:
-            light = 0.2;
-            break;
-          case 0.2:
-            light = 0.6;
-            break;
-          case 0.6:
-            light = 0.99;
-            break;
-          case 0.99:
-            light = 0.001;
-            break;
-        }
-        scenes[this.scene].ambientLight = light;
-        activator.sound("lightswitch");
-        break;
+    if (this.type=="jukebox") {
+      this.music = P.music || null;
+      this.sound(this.music);
     }
   }
 }
@@ -1459,7 +1424,7 @@ var dangers = {
   medusa: class extends alien {
     constructor(P) {
       super(P);
-      this.type = "danger";
+      this.type = "medusa";
     }
 
     affect(alien) {
@@ -1468,10 +1433,6 @@ var dangers = {
     }
   }
 };
-
-function alienAge() {
-  return 10
-}
 
 var alienTextures = {
   mosaic: function() {

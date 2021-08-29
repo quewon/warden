@@ -233,7 +233,6 @@ class scene {
         a = new dangers[this.danger[0]]({
               scene: this.name,
             });
-        console.log(c);
       } else {
         a = new alien({
               scene: this.name,
@@ -275,6 +274,10 @@ class scene {
       lightswitch.moveScene(this.name);
       lightswitch.setPosition(this.lightswitchSpawn.x, this.lightswitchSpawn.y);
     }
+
+    let juke = new togglebox(bank.jukebox);
+    juke.moveScene(this.name);
+    juke.setPosition(32, 32);
   }
 
   draw() {

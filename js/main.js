@@ -73,10 +73,23 @@ function load_sounds() {
       new Howl({src: "sound/aliens/doorman1.wav"}),
       new Howl({src: "sound/aliens/doorman2.wav"})
     ],
-    lightswitch: [
+    switch: [
       new Howl({src: "sound/mechanical/tick.wav"}),
       new Howl({src: "sound/mechanical/click.wav"}),
-    ]
+    ],
+    wanderer: [
+      new Howl({src: "sound/steps/5.wav"}),
+    ],
+    medusa: [
+      new Howl({src: "sound/steps/9.wav"}),
+    ],
+    stone: [
+      new Howl({src: "sound/steps/0.wav"}),
+    ],
+
+    piano: [
+      new Howl({src: "sound/music/piano.wav", loop: true}),
+    ],
   };
 
   let check = setInterval(function() {
@@ -105,11 +118,6 @@ function init() {
   init_controls();
 
   console.log('initializing game...');
-
-  clock = {
-    prev: Date.now(),
-    now: Date.now(),
-  };
 
   document.documentElement.style.setProperty("--bg", "rgb("+Config.filter[52][0]+","+Config.filter[52][1]+","+Config.filter[52][2]+")");
   document.documentElement.style.setProperty("--color", "rgb("+Config.filter[226][0]+","+Config.filter[226][1]+","+Config.filter[226][2]+")");
@@ -198,10 +206,6 @@ function animate() {
 }
 
 function update() {
-  // clock.now = Date.now();
-  // clock.delta = clock.now - clock.prev;
-  // clock.prev = clock.now;
-
   Controls.key.update();
 }
 
@@ -285,13 +289,6 @@ function drawImage(P) {
 
 function lerp(start, end, t) {
   return start * (1-t) + end * t
-}
-
-function playsound(name, volume) {
-  let sound = G.arrayRandom(sounds[name]);
-  volume = volume || 1;
-  sound.volume(volume);
-  sound.play();
 }
 
 function setColor(context, value, opacity) {

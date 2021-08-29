@@ -20,10 +20,18 @@ var bank = {
     type: "lightswitch",
     colmap: [[1]],
   },
+  jukebox: {
+    src: "lightswitch.png",
+    type: "jukebox",
+    music: "piano",
+    colmap: [[1]],
+  },
 
   dialog: {
     doorman: ["❤️", "💖", "💕", "💓", "💘", "💗", "🤍"],
     lightswitch: ["💡"],
-    stone: ["🪨"]
+    jukebox: ["🎵"],
+    stone: ["🪨"],
+    medusa: ["🐍👊"]
   }
 };

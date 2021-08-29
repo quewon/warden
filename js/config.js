@@ -1,9 +1,9 @@
 var Config = {
   keyMap: {
-    up: "ArrowUp",
-    down: "ArrowDown",
-    left: "ArrowLeft",
-    right: "ArrowRight",
+    up: ["ArrowUp", "w"],
+    down: ["ArrowDown", "s"],
+    left: ["ArrowLeft", "a"],
+    right: ["ArrowRight", "d"],
   },
 
   alienTexture: "wavy",
@@ -69,5 +69,5 @@ var Config = {
 
   viewportWidth: 32,
   viewportHeight: 24,
-  viewportScale: 3.5,
+  viewportScale: 3.6,
 }
