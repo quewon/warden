@@ -28,7 +28,7 @@ class alien {
       time: 0,
       distortion: [0, 0],
       distortionTime: 0,
-      color: { value: 52, on: false },
+      color: { value: 52, on: false, blendmode: null },
       colorTime: 0,
       duds: [],
       highlight: 94,
@@ -42,7 +42,6 @@ class alien {
 
     this.reach = 1;
     this.activated = false;
-    this.fx = [];
 
     // element
     if (this.type in bank.dialog) {
@@ -340,10 +339,6 @@ class alien {
         break;
 
       case "wanderer":
-        if (this.fx.includes("stone")) {
-          break;
-        }
-
         move = [0, 0];
 
         for (let i in scenes[this.scene].aliens) {
@@ -369,10 +364,6 @@ class alien {
         break;
 
       case "danger":
-        if (this.fx.includes("stone")) {
-          break;
-        }
-
         move = [0, 0];
 
         for (let i in scenes[this.scene].aliens) {
@@ -728,7 +719,7 @@ class alien {
       this.buffer.shift();
       this.animation.time = 0;
 
-      this.endStep();
+      if (this.type=="player") scenes[this.scene].endStep();
     }
 
     this.findInteractable();
@@ -784,7 +775,7 @@ class alien {
 
     if (this.animation.colorTime > 0 && this.animation.color.on) {
       let v = this.animation.color.value;
-      _c.globalCompositeOperation = "screen";
+      _c.globalCompositeOperation = this.animation.color.blendmode;
       let opacity = Math.sin(this.animation.colorTime * 0.05) + 0.5;
       setColor(_c, v, opacity);
       _c.fillRect(x, y, width, height);
@@ -990,6 +981,7 @@ class alien {
                     alien.activate(this);
                     if ('affect' in this) {
                       this.affect(alien);
+                      console.log(alien.id);
                     }
                   }
                   if (alien.phys.weight > this.phys.power) {
@@ -1057,9 +1049,11 @@ class alien {
   }
 
   activate(activator) {
+    if (this.activated) return;
+
     this.activated = true;
-    if(this.dialog != "") {
-      this.el.querySelector("div").textContent = this.dialog;
+    if(this.type in bank.dialog) {
+      this.el.querySelector("div").textContent = G.arrayRandom(bank.dialog[this.type]);
       this.el.classList.remove("invisible");
     }
 
@@ -1069,6 +1063,7 @@ class alien {
         if (this.instruction.index >= this.instruction.origin.length) this.instruction.index = 0;
 
         this.animation.color.value = 94;
+        this.animation.color.blendmode = "screen";
         this.animation.color.on = true;
         activator.sound("doorman");
         break;
@@ -1078,9 +1073,8 @@ class alien {
   deactivate() {
     this.activated = false;
     this.animation.color.on = false;
-    if(this.dialog != "") {
+    if (this.type in bank.dialog) {
       this.el.classList.add("invisible");
-      this.dialog = G.arrayRandom(bank.dialog[this.type]);
     }
   }
 }
@@ -1469,7 +1463,8 @@ var dangers = {
     }
 
     affect(alien) {
-      alien.fx.push("stone");
+      alien.type = "stone";
+      alien.activate();
     }
   }
 };

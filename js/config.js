@@ -67,7 +67,7 @@ var Config = {
     "lightswitch": [255, 190, 0]
   },
 
-  viewportWidth: 20,
-  viewportHeight: 20,
-  viewportScale: 4,
+  viewportWidth: 32,
+  viewportHeight: 24,
+  viewportScale: 3.5,
 }
