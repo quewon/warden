@@ -416,6 +416,20 @@ class scene {
       alien.endStep();
     }
   }
+
+  clearDialog() {
+    for (let a in this.aliens) {
+      let alien = ref[this.aliens[a]];
+      alien.clearDialog();
+    }
+  }
+
+  unclearDialog() {
+    for (let a in this.aliens) {
+      let alien = ref[this.aliens[a]];
+      if (alien) alien.unclearDialog();
+    }
+  }
 }
 
 var sceneBGs = {

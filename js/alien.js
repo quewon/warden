@@ -18,6 +18,14 @@ class alien {
     this.state = "idle";
 
     if (!this.colmap) this.colmap = p.colmap;
+    this.colnum = 0;
+    for (let y in this.colmap) {
+      for (let x in this.colmap[y]) {
+        if (this.colmap[y][x] != 0) {
+          this.colnum++;
+        }
+      }
+    }
     if (this.type=="player") {
       this.position = scenes[p.scene].playerSpawn
     } else {
@@ -316,6 +324,10 @@ class alien {
     if ('scene' in this) {
       const aliens = scenes[this.scene].aliens;
       scenes[this.scene].aliens.splice(aliens.indexOf(this.id), 1);
+
+      if (this.type=="player") {
+        scenes[this.scene].clearDialog();
+      }
     }
     scenes[s].aliens.push(this.id)
     this.scene = s;
@@ -324,8 +336,10 @@ class alien {
       this.setPosition(spawn.x, spawn.y);
       this.getCamera();
       this.findDuds();
+      scenes[s].unclearDialog();
+    } else {
+      this.endStep();
     }
-    this.endStep();
     if (this.sfx) this.sfx.stop();
   }
 
@@ -771,11 +785,12 @@ class alien {
       this.buffer.shift();
       this.animation.time = 0;
 
-      if (this.type=="player") {
-        scenes[this.scene].endStep();
-      } else {
-        this.endStep();
-      }
+      // if (this.type=="player") {
+      //   scenes[this.scene].endStep();
+      // } else {
+      //   this.endStep();
+      // }
+      this.endStep();
     }
 
     this.findInteractable();
@@ -999,6 +1014,7 @@ class alien {
     }
 
     var allcols = [];
+    let portalcount = this.colnum;
 
     for (let a in col) {
       var alien = col[a];
@@ -1019,96 +1035,98 @@ class alien {
               x + (tx*8) == alien.position.x &&
               y + (ty*8) == alien.position.y
             ) {
-              if (input && t) {
-                playsound("portal");
-                this.moveScene(scenes[this.scene].portal);
-              }
-              return ['portal']
-            }
-          }
-
-          colmapsearch: for (let ay in alien.colmap) {
-
-            for (let ax=0; ax<alien.colmap[ay].length; ax++) {
-              if (alien.colmap[ay][ax] == 0) continue;
-
-              let apx = alien.position.x;
-              let apy = alien.position.y;
-
-              // if (alien.animation.time != 0 && alien.buffer.length > 0) {
-              //   apx += alien.buffer[0][0]*8;
-              //   apy += apy+alien.buffer[0][1]*8;
-              // }
-
-              if (
-                x + (tx*8) == apx + (ax*8) &&
-                y + (ty*8) == apy + (ay*8)
-              ) {
+              portalcount--;
+              if (portalcount <= 0) {
                 if (input && t) {
-                  // if alien is moving
-                  // and is headed to a different tile, then that
-                  // should be accounted for
+                  playsound("portal");
+                  this.moveScene(scenes[this.scene].portal);
+                }
+                return ['portal']
+              }
+            }
+          } else {
+            colmapsearch: for (let ay in alien.colmap) {
 
-                  // alien is moving
-                  if (
-                    alien.animation.time != 0 &&
-                    alien.buffer.length > 0
-                  ) {
-                    let adx = apx+alien.buffer[0][0]*8;
-                    let ady = apy+alien.buffer[0][1]*8;
+              for (let ax=0; ax<alien.colmap[ay].length; ax++) {
+                if (alien.colmap[ay][ax] == 0) continue;
 
-                    if ( // headed to the different tiles
-                      x + (tx*8) != adx + (ax*8) ||
-                      y + (ty*8) != ady + (ay*8)
+                let apx = alien.position.x;
+                let apy = alien.position.y;
+
+                // if (alien.animation.time != 0 && alien.buffer.length > 0) {
+                //   apx += alien.buffer[0][0]*8;
+                //   apy += apy+alien.buffer[0][1]*8;
+                // }
+
+                if (
+                  x + (tx*8) == apx + (ax*8) &&
+                  y + (ty*8) == apy + (ay*8)
+                ) {
+                  if (input && t) {
+                    // if alien is moving
+                    // and is headed to a different tile, then that
+                    // should be accounted for
+
+                    // alien is moving
+                    if (
+                      alien.animation.time != 0 &&
+                      alien.buffer.length > 0
                     ) {
-                      continue;
-                    }
-                  }
+                      let adx = apx+alien.buffer[0][0]*8;
+                      let ady = apy+alien.buffer[0][1]*8;
 
-                  if (!alien.activated) {
-                    alien.activate(this);
-                    if ('affect' in this) {
-                      this.affect(alien);
+                      if ( // headed to the different tiles
+                        x + (tx*8) != adx + (ax*8) ||
+                        y + (ty*8) != ady + (ay*8)
+                      ) {
+                        continue;
+                      }
                     }
-                  }
 
-                  if (alien.phys.weight > this.phys.power) {
-                    allcols.push(alien);
-                    break colmapsearch
-                  }
-                  alien.colignore = this.id;
-                  let nudge = alien.nudge(input, t);
-                  if (nudge) {
-                    alien.animation.time = t;
-                    alien.move(input[0], input[1]);
+                    if (!alien.activated) {
+                      alien.activate(this);
+                      if ('affect' in this) {
+                        this.affect(alien);
+                      }
+                    }
+
+                    if (alien.phys.weight > this.phys.power) {
+                      allcols.push(alien);
+                      break colmapsearch
+                    }
+                    alien.colignore = this.id;
+                    let nudge = alien.nudge(input, t);
+                    if (nudge) {
+                      alien.animation.time = t;
+                      alien.move(input[0], input[1]);
+                    } else {
+                      allcols.push(alien);
+                      break colmapsearch
+                    }
                   } else {
                     allcols.push(alien);
                     break colmapsearch
                   }
-                } else {
-                  allcols.push(alien);
-                  break colmapsearch
-                }
-              } else if ( //this and alien is moving
-                alien.animation.time != 0 &&
-                alien.buffer.length > 0 &&
-                input && t
-              ) {
-                let adx = apx+alien.buffer[0][0]*8;
-                let ady = apy+alien.buffer[0][1]*8;
-
-                if ( // headed to the same tile
-                  x + (tx*8) == adx + (ax*8) &&
-                  y + (ty*8) == ady + (ay*8)
+                } else if ( //this and alien is moving
+                  alien.animation.time != 0 &&
+                  alien.buffer.length > 0 &&
+                  input && t
                 ) {
-                  this.setPosition(this.position.x, this.position.y);
-                  allcols.push(alien);
-                  break colmapsearch
+                  let adx = apx+alien.buffer[0][0]*8;
+                  let ady = apy+alien.buffer[0][1]*8;
+
+                  if ( // headed to the same tile
+                    x + (tx*8) == adx + (ax*8) &&
+                    y + (ty*8) == ady + (ay*8)
+                  ) {
+                    this.setPosition(this.position.x, this.position.y);
+                    allcols.push(alien);
+                    break colmapsearch
+                  }
                 }
               }
             }
           }
-
         }
       }
 
@@ -1212,8 +1230,17 @@ class alien {
   deactivate() {
     this.activated = false;
     this.animation.color.on = false;
-    if (this.type in bank.dialog) {
-      this.el.classList.add("invisible");
+    this.clearDialog();
+  }
+
+  clearDialog() {
+    if (this.el) this.el.classList.add("invisible");
+  }
+
+  unclearDialog() {
+    if(this.el && this.activated) {
+      this.el.querySelector("div").textContent = G.arrayRandom(bank.dialog[this.type]);
+      this.el.classList.remove("invisible");
     }
   }
 }
