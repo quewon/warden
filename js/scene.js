@@ -7,6 +7,7 @@ class scene {
 
     this.ambientLight = p.ambientLight || G.arrayRandom(Config.lightLevels);
 
+    this.portal = p.portal || "hub";
     this.danger = p.danger || null;
   }
 
@@ -55,6 +56,7 @@ class scene {
 
         searchkey: for (let k in Config.colKey) {
           let key = Config.colKey[k];
+
           if (
             coldata[i] == key[0] &&
             coldata[i+1] == key[1] &&
@@ -418,7 +420,7 @@ class scene {
 
 var sceneBGs = {
   mosaic: function(w, h) {
-    for (let y=0; y<w; y++) {
+    for (let y=0; y<h; y++) {
       for (let x=0; x<w; x++) {
         let opacity = Math.random();
 
@@ -435,8 +437,23 @@ var sceneBGs = {
 
     return image
   },
+  noise: function(w, h) {
+    for (let y=0; y<h; y++) {
+      for (let x=0; x<w; x++) {
+        let opacity = Math.random();
+
+        setColor(_e, 201, opacity);
+        _e.fillRect(x, y, 1, 1);
+      }
+    }
+
+    let image = new Image();
+    image.src = _extra.toDataURL();
+
+    return image
+  },
   carpet: function(w, h) {
-    for (let y=0; y<w; y++) {
+    for (let y=0; y<h; y++) {
       for (let x=0; x<w; x++) {
         let opacity = Math.random();
 
@@ -452,7 +469,7 @@ var sceneBGs = {
     return image
   },
   ground: function(w, h) {
-    for (let y=0; y<w; y++) {
+    for (let y=0; y<h; y++) {
       for (let x=0; x<w; x++) {
         if (Math.random() > 0.1) continue;
 

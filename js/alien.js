@@ -34,6 +34,7 @@ class alien {
       colorTime: 0,
       duds: [],
       highlight: 94,
+      danceTime: 0,
     };
     this.buffer = [];
     this.speed = 0.06;
@@ -725,6 +726,12 @@ class alien {
       this.proportional();
     }
 
+    if (this.hears().includes("jukebox")) {
+      this.animation.danceTime++;
+    } else {
+      this.animation.danceTime = 0;
+    }
+
     if ('toggle' in this) {
       if (this.activated) {
         this.toggle.time--;
@@ -787,19 +794,22 @@ class alien {
  
   proportional() {
     this.animation.distortion = [0, 0];
-    this.animation.width = this.img.width;
-    this.animation.height = this.img.height;
   }
 
   draw(xo, yo) {
     let offset = [0, 0];
 
+    if (this.animation.danceTime > 0) {
+      offset[0] += Math.round(Math.sin(this.animation.danceTime/10)/1.5);
+      offset[1] += Math.round(Math.cos(this.animation.danceTime/10)/1.5);
+    }
+
     if (this.buffer.length > 0) {
-      offset[0] = this.animation.distortion[0] + this.buffer[0][0];
-      offset[1] = this.animation.distortion[1] + this.buffer[0][1];
+      offset[0] += this.animation.distortion[0] + this.buffer[0][0];
+      offset[1] += this.animation.distortion[1] + this.buffer[0][1];
     } else {
-      offset[0] = this.colmap[0].length * this.animation.distortion[0];
-      offset[1] = this.colmap.length * this.animation.distortion[1];
+      offset[0] += this.animation.distortion[0]/2;
+      offset[1] += this.animation.distortion[1]/2;
     }
 
     if (this.activated && this.animation.distortionTime > 0) {
@@ -931,6 +941,18 @@ class alien {
             buffer: [],
             wall: true,
           });
+        } else if (colmap[cy][cx] == "portal") {
+          col.push({
+            id: -1,
+            position: {
+              x: cx*8,
+              y: cy*8,
+            },
+            colmap: [[1]],
+            animation: { time: 0 },
+            buffer: [],
+            portal: true,
+          });
         }
       }
     }
@@ -986,6 +1008,16 @@ class alien {
               x + (tx*8) == alien.position.x &&
               y + (ty*8) == alien.position.y
             ) {
+              return ['wall']
+            }
+          } else if ('portal' in alien) {
+            if (
+              x + (tx*8) == alien.position.x &&
+              y + (ty*8) == alien.position.y
+            ) {
+              if (input && t) {
+                this.moveScene(scenes[this.scene].portal);
+              }
               return ['wall']
             }
           }
@@ -1078,6 +1110,28 @@ class alien {
     }
 
     return allcols
+  }
+
+  hears() {
+    let hearing = [];
+
+    const aliens = scenes[this.scene].aliens;
+    for (let a of aliens) {
+      let alien = ref[a];
+      if (!alien.sfx) continue;
+      else if (!alien.sfx.playing()) continue;
+
+      let x = (this.animation.position.x + this.img.width/2) - (alien.animation.position.x + alien.img.width/2);
+      let y = (this.animation.position.y + this.img.height/2) - (alien.animation.position.y + alien.img.height/2);
+      let dist = Math.sqrt( x*x + y*y );
+
+      let volume = 1 - dist/100;
+      if (volume > 0) {
+        hearing.push(alien.type);
+      }
+    }
+
+    return hearing
   }
 
   // interaction

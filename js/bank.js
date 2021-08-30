@@ -9,6 +9,7 @@ var bank = {
     name: "hub",
     src: "hub",
     ambientLight: 0.99,
+    portal: "glasseye",
   },
   glasseye: {
     name: "glasseye",
@@ -21,7 +22,7 @@ var bank = {
     colmap: [[1]],
   },
   jukebox: {
-    src: "lightswitch.png",
+    src: "jukebox.png",
     type: "jukebox",
     music: "piano",
     colmap: [[1]],

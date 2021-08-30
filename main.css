@@ -16,6 +16,7 @@ body {
   color: var(--color);
   overflow: hidden;
   font-size: 20px;
+  pointer-events: none;
 }
 
 #loading {

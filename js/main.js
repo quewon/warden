@@ -22,6 +22,7 @@ function load_imgs() {
   var toload = [
     "player.png",
     "lightswitch.png",
+    "jukebox.png",
 
     "parts/right shoulders.png",
     "parts/heads.png",

@@ -66,7 +66,8 @@ var Config = {
     "alienspawn": [0, 0, 255],
     "doormanv": [0, 255, 255],
     "doormanh": [255, 255, 0],
-    "lightswitch": [255, 190, 0]
+    "lightswitch": [255, 190, 0],
+    "portal": [255, 255, 255],
   },
 
   viewportWidth: 32,
