@@ -1,7 +1,7 @@
 var bank = {
   player: {
     src: "player.png",
-    scene: "hub",
+    scene: "glasseye",
     type: "player",
     colmap: [[1]],
   },

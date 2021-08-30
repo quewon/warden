@@ -772,7 +772,7 @@ class alien {
       this.buffer.shift();
       this.animation.time = 0;
 
-      if (this.type=="player") scenes[this.scene].endStep();
+      this.endStep();
     }
 
     this.findInteractable();
@@ -1018,7 +1018,7 @@ class alien {
               if (input && t) {
                 this.moveScene(scenes[this.scene].portal);
               }
-              return ['wall']
+              continue;
             }
           }
 

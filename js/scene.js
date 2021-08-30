@@ -409,13 +409,6 @@ class scene {
       alien.step();
     }
   }
-
-  endStep() {
-    for (let a in this.aliens) {
-      let alien = ref[this.aliens[a]];
-      alien.endStep();
-    }
-  }
 }
 
 var sceneBGs = {
