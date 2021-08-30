@@ -1020,9 +1020,10 @@ class alien {
               y + (ty*8) == alien.position.y
             ) {
               if (input && t) {
+                playsound("portal");
                 this.moveScene(scenes[this.scene].portal);
               }
-              continue;
+              return ['portal']
             }
           }
 
@@ -1149,7 +1150,7 @@ class alien {
       for (let x=-1*this.reach+sx; x<=this.reach-smx; x++) {
         let cols = this.colliding(this.position.x+x*8, this.position.y+y*8);
         if (cols.length > 0) {
-          if (cols[0] == "wall") continue;
+          if (typeof cols[0] === "string") continue;
           this.interactable = cols[0];
           break search;
         }
@@ -1195,7 +1196,7 @@ class alien {
         activator.sound("switch");
         break;
       case "jukebox":
-        activator.sound("switch");
+        activator.sound("scratch");
         if (this.sfx.playing()) {
           this.sfx.pause();
         } else {

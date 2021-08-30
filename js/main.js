@@ -79,9 +79,14 @@ function load_sounds() {
       new Howl({src: "sound/mechanical/tick.wav"}),
       new Howl({src: "sound/mechanical/click.wav"}),
     ],
-
-    piano: [
-      new Howl({src: "sound/music/piano.wav", loop: true}),
+    scratch: [new Howl({src: "sound/mechanical/focus.wav"})],
+    piano: [new Howl({src: "sound/music/piano.wav", loop: true})],
+    portal: [
+      new Howl({src: "sound/portal/1.wav"}),
+      new Howl({src: "sound/portal/2.wav"}),
+      new Howl({src: "sound/portal/3.wav"}),
+      new Howl({src: "sound/portal/4.wav"}),
+      new Howl({src: "sound/portal/5.wav"})
     ],
   };
 
@@ -345,4 +350,11 @@ function liangBarsky (x0, y0, x1, y1, bbox) {
     [x0 + t0 * dx, y0 + t0 * dy],
     [x0 + t1 * dx, y0 + t1 * dy]
   ];
+}
+
+function playsound(name) {
+  if (name in sounds) {
+    let sfx = G.arrayRandom(sounds[name]);
+    sfx.play();
+  }
 }
