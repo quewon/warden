@@ -38,11 +38,6 @@ class alien {
     };
     this.buffer = [];
     this.speed = 0.06;
-    this.moveScene(p.scene || "hub");
-    if (this.type=="player") {
-      this.getCamera();
-      this.findDuds();
-    }
 
     this.reach = 1;
     this.activated = false;
@@ -61,6 +56,8 @@ class alien {
     let nt = document.createElement("div");
     this.el.appendChild(nt);
     _dialog.appendChild(this.el);
+
+    this.moveScene(p.scene || "hub");
 
     ref.push(this);
   }
@@ -328,6 +325,8 @@ class alien {
       this.getCamera();
       this.findDuds();
     }
+    this.endStep();
+    if (this.sfx) this.sfx.stop();
   }
 
   sound(name) {
@@ -772,7 +771,11 @@ class alien {
       this.buffer.shift();
       this.animation.time = 0;
 
-      this.endStep();
+      if (this.type=="player") {
+        scenes[this.scene].endStep();
+      } else {
+        this.endStep();
+      }
     }
 
     this.findInteractable();
@@ -799,14 +802,12 @@ class alien {
   draw(xo, yo) {
     let offset = [0, 0];
 
-    if (this.animation.danceTime > 0) {
-      offset[0] += Math.round(Math.sin(this.animation.danceTime/10)/1.5);
-      offset[1] += Math.round(Math.cos(this.animation.danceTime/10)/1.5);
-    }
-
     if (this.buffer.length > 0) {
       offset[0] += this.animation.distortion[0] + this.buffer[0][0];
       offset[1] += this.animation.distortion[1] + this.buffer[0][1];
+    } else if (this.animation.distortionTime <= 0) {
+      offset[0] += this.colmap[0].length * this.animation.distortion[0];
+      offset[1] += this.colmap.length * this.animation.distortion[1];
     } else {
       offset[0] += this.animation.distortion[0]/2;
       offset[1] += this.animation.distortion[1]/2;
@@ -815,6 +816,9 @@ class alien {
     if (this.activated && this.animation.distortionTime > 0) {
       let o = Math.sin(this.animation.distortionTime * 0.5);
       offset[this.orientation] += o;
+    } else if (this.animation.danceTime > 0) {
+      offset[0] += Math.round(Math.sin(this.animation.danceTime/10)/1.5);
+      offset[1] += Math.round(Math.cos(this.animation.danceTime/10)/1.5);
     }
 
     offset[0] += xo;
