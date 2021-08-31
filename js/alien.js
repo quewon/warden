@@ -338,6 +338,7 @@ class alien {
       this.findDuds();
       scenes[s].unclearDialog();
     } else {
+      this.clearDialog();
       this.endStep();
     }
     if (this.sfx) this.sfx.stop();
@@ -475,6 +476,8 @@ class alien {
         if (this.position.x == goal.x && this.position.y == goal.y) {
           this.deactivate();
         }
+        break;
+      case "stone":
         break;
       default:
         this.deactivate();
@@ -785,12 +788,14 @@ class alien {
       this.buffer.shift();
       this.animation.time = 0;
 
-      // if (this.type=="player") {
-      //   scenes[this.scene].endStep();
-      // } else {
-      //   this.endStep();
-      // }
-      this.endStep();
+      if (this.type=="player") {
+        // aliens don't get stuck with their
+        // dialog elements on when they're not moving
+
+        scenes[this.scene].endStep();
+      } else {
+        this.endStep();
+      }
     }
 
     this.findInteractable();
@@ -1519,6 +1524,7 @@ class togglebox extends alien {
       time: 0,
       buffer: 10,
     };
+    this.animation.highlight = 52;
 
     if (this.type=="jukebox") {
       this.music = P.music || null;
